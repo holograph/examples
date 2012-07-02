@@ -58,4 +58,5 @@ object ORMDoneRight {
             val brustGenres = bookGenresByAuthor( "Steven Brust" ).toList
             assert( brustGenres == List( "Fantasy" ) )
         }
-    }}
+    }
+}

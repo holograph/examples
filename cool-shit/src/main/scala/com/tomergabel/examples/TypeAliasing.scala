@@ -41,7 +41,7 @@ object TypeAliasing {
     }
 
     def main( args: Array[ String ] ) {
-        val db = loadModule[ DatabaseModule ]( """{"host":"localhost", "user":"tomer", "schema":"test"}""" )
-        val file = loadModule[ FileModule ]( """{"path":"/tmp/test"}""" )
+        loadModule[ FileModule ]( """{"path":"/tmp/test"}""" )
+        loadModule[ DatabaseModule ]( """{"host":"localhost", "user":"tomer", "schema":"test"}""" )
     }
 }

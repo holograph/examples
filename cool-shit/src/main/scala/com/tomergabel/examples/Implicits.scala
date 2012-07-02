@@ -31,7 +31,7 @@ object Implicits {
     }
 
     def main( args: Array[ String ] ) {
-        val tempFile = File.createTempFile( "some", ".txt" )
+        val tempFile = "/tmp/test".toFile
 
         tempFile printTo { ps =>
             ps.println( "I do not like green eggs and ham" )
