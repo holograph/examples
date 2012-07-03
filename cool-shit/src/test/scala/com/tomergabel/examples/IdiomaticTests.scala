@@ -11,14 +11,14 @@ import org.scalatest.FlatSpec
 class IdiomaticTests extends FlatSpec with ShouldMatchers {
 
     val classUnderTest = new {
-        def returns5 = 5
+        def returns5 = 4
         def throwsAnError() { throw new Exception() }
         def returnsRandomInRange( r: Range ) =
             Random.nextInt( ( r.end - r.start ) / r.step ) * r.step + r.start
     }
 
     "classUnderTest.returns5" should "return 5" in {
-        classUnderTest.returns5 should be === 5
+        classUnderTest.returns5 should equal( 5 )
     }
 
     "classUnderTest.throwsAnError" should "throw an exception" in {

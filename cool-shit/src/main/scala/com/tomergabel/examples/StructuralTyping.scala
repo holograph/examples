@@ -6,7 +6,7 @@ import java.io.{PrintStream, File}
  * Created by tomer on 7/2/12.
  */
 
-object DuckTyping {
+object StructuralTyping {
 
     class UnmanagedResource {
         println( "created" )
