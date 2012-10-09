@@ -19,7 +19,7 @@ class DemoServlet extends ScalatraServlet {
         val b = new AnyRef
 
         val   primary = () => while( true ) { a.synchronized { b.synchronized { println( "a->b is wonderful!" ) } } }
-        val secondary = () => while( true ) { b.synchronized { a.synchronized { println( "a->b is wonderful!" ) } } }
+        val secondary = () => while( true ) { b.synchronized { a.synchronized { println( "b->a is wonderful!" ) } } }
 
         new Thread(   primary, "deadlock-1" ).start()
         new Thread( secondary, "deadlock-2" ).start()
