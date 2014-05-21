@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="content-type" content="text/html; charset=latin1">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #ffffcc }
+body  { background: #ffffff; }
+body .c { color: #888888 } /* Comment */
+body .err { color: #FF0000; background-color: #FFAAAA } /* Error */
+body .k { color: #008800; font-weight: bold } /* Keyword */
+body .o { color: #333333 } /* Operator */
+body .cm { color: #888888 } /* Comment.Multiline */
+body .cp { color: #557799 } /* Comment.Preproc */
+body .c1 { color: #888888 } /* Comment.Single */
+body .cs { color: #cc0000; font-weight: bold } /* Comment.Special */
+body .gd { color: #A00000 } /* Generic.Deleted */
+body .ge { font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00A000 } /* Generic.Inserted */
+body .go { color: #888888 } /* Generic.Output */
+body .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */
+body .gs { font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0044DD } /* Generic.Traceback */
+body .kc { color: #008800; font-weight: bold } /* Keyword.Constant */
+body .kd { color: #008800; font-weight: bold } /* Keyword.Declaration */
+body .kn { color: #008800; font-weight: bold } /* Keyword.Namespace */
+body .kp { color: #003388; font-weight: bold } /* Keyword.Pseudo */
+body .kr { color: #008800; font-weight: bold } /* Keyword.Reserved */
+body .kt { color: #333399; font-weight: bold } /* Keyword.Type */
+body .m { color: #6600EE; font-weight: bold } /* Literal.Number */
+body .s { background-color: #fff0f0 } /* Literal.String */
+body .na { color: #0000CC } /* Name.Attribute */
+body .nb { color: #007020 } /* Name.Builtin */
+body .nc { color: #BB0066; font-weight: bold } /* Name.Class */
+body .no { color: #003366; font-weight: bold } /* Name.Constant */
+body .nd { color: #555555; font-weight: bold } /* Name.Decorator */
+body .ni { color: #880000; font-weight: bold } /* Name.Entity */
+body .ne { color: #FF0000; font-weight: bold } /* Name.Exception */
+body .nf { color: #0066BB; font-weight: bold } /* Name.Function */
+body .nl { color: #997700; font-weight: bold } /* Name.Label */
+body .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */
+body .nt { color: #007700 } /* Name.Tag */
+body .nv { color: #996633 } /* Name.Variable */
+body .ow { color: #000000; font-weight: bold } /* Operator.Word */
+body .w { color: #bbbbbb } /* Text.Whitespace */
+body .mf { color: #6600EE; font-weight: bold } /* Literal.Number.Float */
+body .mh { color: #005588; font-weight: bold } /* Literal.Number.Hex */
+body .mi { color: #0000DD; font-weight: bold } /* Literal.Number.Integer */
+body .mo { color: #4400EE; font-weight: bold } /* Literal.Number.Oct */
+body .sb { background-color: #fff0f0 } /* Literal.String.Backtick */
+body .sc { color: #0044DD } /* Literal.String.Char */
+body .sd { color: #DD4422 } /* Literal.String.Doc */
+body .s2 { background-color: #fff0f0 } /* Literal.String.Double */
+body .se { color: #666666; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */
+body .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */
+body .si { background-color: #eeeeee } /* Literal.String.Interpol */
+body .sx { color: #DD2200; background-color: #fff0f0 } /* Literal.String.Other */
+body .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */
+body .s1 { background-color: #fff0f0 } /* Literal.String.Single */
+body .ss { color: #AA6600 } /* Literal.String.Symbol */
+body .bp { color: #007020 } /* Name.Builtin.Pseudo */
+body .vc { color: #336699 } /* Name.Variable.Class */
+body .vg { color: #dd7700; font-weight: bold } /* Name.Variable.Global */
+body .vi { color: #3333BB } /* Name.Variable.Instance */
+body .il { color: #0000DD; font-weight: bold } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+<h2></h2>
+
+<div class="highlight"><pre><span class="k">package</span> <span class="nn">com.tomergabel.examples.naive</span>
+
+<span class="k">import</span> <span class="nn">scala.util.Random</span>
+<span class="k">import</span> <span class="nn">scala.collection.mutable</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Created by tomer on 5/20/14.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Naive reimplementation in Scala, third step</span>
+<span class="cm"> */</span>
+<span class="k">object</span> <span class="nc">WithReducedBrackets</span> <span class="o">{</span>
+
+  <span class="k">private</span> <span class="k">val</span> <span class="n">names</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span> <span class="kt">String</span> <span class="o">]</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span> <span class="s">&quot;Jeffrey&quot;</span><span class="o">,</span> <span class="s">&quot;Walter&quot;</span><span class="o">,</span> <span class="s">&quot;Donald&quot;</span> <span class="o">)</span>
+  <span class="k">private</span> <span class="k">val</span> <span class="n">surnames</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span> <span class="kt">String</span> <span class="o">]</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span> <span class="s">&quot;Lebowsky&quot;</span><span class="o">,</span> <span class="s">&quot;Sobchak&quot;</span><span class="o">,</span> <span class="s">&quot;Kerabatsos&quot;</span> <span class="o">)</span>
+  <span class="k">private</span> <span class="k">val</span> <span class="n">random</span><span class="k">:</span> <span class="kt">Random</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Random</span>
+  <span class="k">val</span> <span class="nc">MINIMUM_HUMAN_AGE</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">val</span> <span class="nc">MAXIMUM_HUMAN_AGE</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">125</span>
+  <span class="k">val</span> <span class="nc">MINIMUM_TODDLER_AGE</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="k">val</span> <span class="nc">MAXIMUM_TODDLER_AGE</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">3</span>
+
+  <span class="k">def</span> <span class="n">generatePerson</span><span class="o">(</span> <span class="n">minAge</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">maxAge</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">)</span><span class="k">:</span> <span class="kt">Person</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">names</span><span class="o">(</span> <span class="n">random</span><span class="o">.</span><span class="n">nextInt</span><span class="o">(</span> <span class="n">names</span><span class="o">.</span><span class="n">size</span> <span class="o">)</span> <span class="o">)</span>
+    <span class="k">val</span> <span class="n">surname</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">surnames</span><span class="o">(</span> <span class="n">random</span><span class="o">.</span><span class="n">nextInt</span><span class="o">(</span> <span class="n">surnames</span><span class="o">.</span><span class="n">size</span> <span class="o">)</span> <span class="o">)</span>
+    <span class="k">val</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">nextInt</span><span class="o">(</span> <span class="n">maxAge</span> <span class="o">-</span> <span class="n">minAge</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">)</span> <span class="o">+</span> <span class="n">minAge</span>
+    <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span> <span class="n">name</span><span class="o">,</span> <span class="n">surname</span><span class="o">,</span> <span class="n">age</span> <span class="o">)</span>
+  <span class="o">}</span>
+
+  <span class="k">def</span> <span class="n">generatePerson</span><span class="k">:</span> <span class="kt">Person</span> <span class="o">=</span>
+    <span class="n">generatePerson</span><span class="o">(</span> <span class="nc">MINIMUM_HUMAN_AGE</span><span class="o">,</span> <span class="nc">MAXIMUM_HUMAN_AGE</span> <span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">generatePeople</span><span class="o">(</span> <span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">minAge</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">maxAge</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span> <span class="kt">Person</span> <span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">people</span><span class="k">:</span> <span class="kt">mutable.ListBuffer</span><span class="o">[</span> <span class="kt">Person</span> <span class="o">]</span> <span class="k">=</span> <span class="n">mutable</span><span class="o">.</span><span class="nc">ListBuffer</span><span class="o">.</span><span class="n">empty</span>
+    <span class="k">for</span> <span class="o">(</span> <span class="n">i</span> <span class="k">&lt;-</span> <span class="mi">0</span> <span class="n">until</span> <span class="n">count</span> <span class="o">)</span>
+      <span class="n">people</span><span class="o">.</span><span class="n">append</span><span class="o">(</span> <span class="n">generatePerson</span><span class="o">(</span> <span class="n">minAge</span><span class="o">,</span> <span class="n">maxAge</span> <span class="o">)</span> <span class="o">)</span>
+    <span class="n">people</span><span class="o">.</span><span class="n">result</span><span class="o">()</span>
+  <span class="o">}</span>
+
+  <span class="k">def</span> <span class="n">generatePeople</span><span class="o">(</span> <span class="n">count</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span> <span class="kt">Person</span> <span class="o">]</span> <span class="k">=</span>
+    <span class="n">generatePeople</span><span class="o">(</span> <span class="n">count</span><span class="o">,</span> <span class="nc">MINIMUM_HUMAN_AGE</span><span class="o">,</span> <span class="nc">MAXIMUM_HUMAN_AGE</span> <span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">generateToddler</span><span class="k">:</span> <span class="kt">Person</span> <span class="o">=</span>
+    <span class="n">generatePerson</span><span class="o">(</span> <span class="nc">MINIMUM_TODDLER_AGE</span><span class="o">,</span> <span class="nc">MAXIMUM_TODDLER_AGE</span> <span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">generateToddlers</span><span class="o">(</span> <span class="n">count</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">)</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span> <span class="kt">Person</span> <span class="o">]</span> <span class="k">=</span>
+    <span class="n">generatePeople</span><span class="o">(</span> <span class="n">count</span><span class="o">,</span> <span class="nc">MINIMUM_TODDLER_AGE</span><span class="o">,</span> <span class="nc">MAXIMUM_TODDLER_AGE</span> <span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">main</span><span class="o">(</span> <span class="n">args</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span> <span class="kt">String</span> <span class="o">]</span> <span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span><span class="o">(</span> <span class="s">&quot;Five people:&quot;</span> <span class="o">)</span>
+    <span class="k">for</span> <span class="o">(</span> <span class="n">person</span> <span class="k">&lt;-</span> <span class="n">generatePeople</span><span class="o">(</span> <span class="mi">5</span> <span class="o">)</span> <span class="o">)</span>
+      <span class="n">println</span><span class="o">(</span> <span class="n">person</span><span class="o">.</span><span class="n">toString</span> <span class="o">)</span>
+    <span class="n">println</span><span class="o">(</span> <span class="s">&quot;Two toddlers:&quot;</span> <span class="o">)</span>
+    <span class="k">for</span> <span class="o">(</span> <span class="n">toddler</span> <span class="k">&lt;-</span> <span class="n">generateToddlers</span><span class="o">(</span> <span class="mi">2</span> <span class="o">)</span> <span class="o">)</span>
+      <span class="n">println</span><span class="o">(</span> <span class="n">toddler</span><span class="o">.</span><span class="n">toString</span> <span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</body>
+</html>
