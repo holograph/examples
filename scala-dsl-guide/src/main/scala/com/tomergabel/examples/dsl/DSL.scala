@@ -5,8 +5,7 @@ import scala.collection.GenTraversableOnce
 /**
  * Created by tomer on 10/24/14.
  */
-object Final extends App {
-
+object DSL {
   def empty[T <: GenTraversableOnce[_]] = new CompoundPredicate[T] {
     def test: T => Boolean = _.isEmpty
     def failure = "is not empty"
@@ -33,21 +32,6 @@ object Final extends App {
     def failureNeg = s"is $b"
   }
 
-  def equalTo[T](rhs: T) = new CompoundPredicate[T] {
-    def test: T => Boolean = _ == rhs
-    def failure = s"is not equal to $rhs"
-    def failureNeg = s"is equal to $rhs"
-  }
-
-  Nil shouldBe empty
-  val ref: String = null
-  ref shouldBe null
-  (3*4>10) shouldBe true
-  3*4 shouldBe equalTo(12)
-
-  def not[T](predicate: Predicate[T]): predicate.Self[T] = predicate.negate
-  List(1, 2, 3) shouldBe not(empty)
-  
   def startWith(prefix: String) = new ModalPredicate[String] {
     def test: String => Boolean = _ startsWith prefix
     def failure = s"does not start with $prefix"
@@ -69,10 +53,12 @@ object Final extends App {
     def failure = s"does not match pattern $pattern"
     def failureNeg = s"matches pattern $pattern"
   }
+  def equalTo[T](rhs: T) = new CompoundPredicate[T] {
+    def test: T => Boolean = _ == rhs
+    def failure = s"is not equal to $rhs"
+    def failureNeg = s"is equal to $rhs"
+  }
 
-  "Scala.IO" should startWith("Scala")
-  "Scala.IO" should endWith("IO")
-  List(1, 2, 3) should contain(2)
-  "Scala.IO" should matchRegex("Sc.*")
-  "RubyConf" should not(startWith("Scala"))
+  def not[T](predicate: Predicate[T]): predicate.Self[T] = predicate.negate
+
 }
