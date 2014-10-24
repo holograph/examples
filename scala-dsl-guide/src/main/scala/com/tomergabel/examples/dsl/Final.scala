@@ -44,7 +44,9 @@ object Final extends App {
   ref shouldBe null
   (3*4>10) shouldBe true
   3*4 shouldBe equalTo(12)
-  
+
+  def not[T](predicate: Predicate[T]): predicate.Self[T] = predicate.negate
+  List(1, 2, 3) shouldBe not(empty)
   
   def startWith(prefix: String) = new ModalPredicate[String] {
     def test: String => Boolean = _ startsWith prefix
@@ -72,20 +74,5 @@ object Final extends App {
   "Scala.IO" should endWith("IO")
   List(1, 2, 3) should contain(2)
   "Scala.IO" should matchRegex("Sc.*")
-
-
-
-  /*
-empty
-null
-true
-equalTo
-startWith
-endWith
-contain
-matchRegex
-not
-and
-or
-   */
+  "RubyConf" should not(startWith("Scala"))
 }
