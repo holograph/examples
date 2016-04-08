@@ -1,18 +1,15 @@
 package com.tomergabel.examples.dsl
 
-import scala.collection.GenTraversableOnce
+import scala.collection.Iterable
 
-/**
- * Created by tomer on 10/24/14.
- */
 object DSL {
-  def empty[T <: GenTraversableOnce[_]] = new CompoundPredicate[T] {
-    def test: T => Boolean = _.isEmpty
+  def empty[T <: Iterable[_]] = new CompoundPredicate[T] {
+    def test(data: T): Boolean = data.isEmpty
     def failure = "is not empty"
     def failureNeg = "is empty"
   }
 
-  implicit class EntryPoint[T](data: T) {
+  implicit class ValidationContext[T](data: T) {
     private def test(predicate: Predicate[T]): Unit =
       require(predicate.test(data), s"Value $data ${predicate.failure}")
 
@@ -27,34 +24,34 @@ object DSL {
   }
 
   implicit class BooleanPredicate(b: Boolean) extends CompoundPredicate[Boolean] {
-    def test: Boolean => Boolean = _ == b
+    def test(data: Boolean) = data == b
     def failure = s"is not $b"
     def failureNeg = s"is $b"
   }
 
   def startWith(prefix: String) = new ModalPredicate[String] {
-    def test: String => Boolean = _ startsWith prefix
+    def test(data: String): Boolean = data startsWith prefix
     def failure = s"does not start with $prefix"
     def failureNeg = s"starts with $prefix"
   }
   def endWith(suffix: String) = new ModalPredicate[String] {
-    def test: String => Boolean = _ endsWith suffix
+    def test(data: String): Boolean = data endsWith suffix
     def failure = s"does not end with $suffix"
     def failureNeg = s"ends with $suffix"
   }
-  def contain[T <: GenTraversableOnce[E], E](elem: E) =
+  def contain[T <: Iterable[E], E](elem: E) =
     new ModalPredicate[T] {
-      def test: T => Boolean = _.exists(_ == elem)
+      def test(data: T): Boolean = data.exists(_ == elem)
       def failure = s"does not contain element $elem"
       def failureNeg = s"contains element $elem"
     }
   def matchRegex(pattern:String) = new ModalPredicate[String] {
-    def test: String => Boolean = _ matches pattern
+    def test(data: String): Boolean = data matches pattern
     def failure = s"does not match pattern $pattern"
     def failureNeg = s"matches pattern $pattern"
   }
   def equalTo[T](rhs: T) = new CompoundPredicate[T] {
-    def test: T => Boolean = _ == rhs
+    def test(data: T): Boolean = data == rhs
     def failure = s"is not equal to $rhs"
     def failureNeg = s"is equal to $rhs"
   }
