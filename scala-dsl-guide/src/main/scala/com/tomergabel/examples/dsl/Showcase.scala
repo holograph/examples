@@ -12,9 +12,9 @@ object Showcase extends App {
 
   List(1, 2, 3) shouldBe not(empty)
   
-  "Scala.IO" should startWith("Scala")
-  "Scala.IO" should endWith("IO")
+  "ScalaUA" should startWith("Scala")
+  "ScalaUA" should endWith("IO")
   List(1, 2, 3) should contain(2)
-  "Scala.IO" should matchRegex("Sc.*")
+  "ScalaUA" should matchRegex("Sc.*")
   "RubyConf" should not(startWith("Scala"))
 }
