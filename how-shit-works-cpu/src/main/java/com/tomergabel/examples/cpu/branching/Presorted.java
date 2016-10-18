@@ -8,6 +8,10 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A variant on the {@link Baseline baseline benchmark} which first pre-sorts the data. The subsequent summing phase
+ * then enjoys 100% success rate on branch prediction.
+ */
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)

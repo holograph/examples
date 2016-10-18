@@ -7,6 +7,10 @@ import org.openjdk.jmh.annotations.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A simple baseline performance benchmarks. Creates a bunch of random bytes, and subsequently sums up
+ * all positive bytes.
+ */
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)

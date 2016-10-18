@@ -7,6 +7,11 @@ import org.openjdk.jmh.annotations.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A variant on the {@link Baseline baseline benchmark} which uses a simpler operation (assignment), giving
+ * the JIT the opportunity to use a predicated x86 instruction (in this case likely {@code cmovge}), eliding the
+ * cost of the branch entirely.
+ */
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)
