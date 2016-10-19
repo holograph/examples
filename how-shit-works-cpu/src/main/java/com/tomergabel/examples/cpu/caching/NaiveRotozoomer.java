@@ -131,7 +131,7 @@ public class NaiveRotozoomer extends Frame {
         for (int y = 0; y < TEXTURE_H; y++)
             for (int x = 0; x < TEXTURE_W; x++) {
                 int intensity = (x ^ y) & 0xff;
-                texture[offset] = 0xff000000 + (intensity << 16) + (intensity << 8) + intensity;
+                texture[offset] = 0xff000000 + intensity;
                 offset++;
             }
     }
@@ -165,10 +165,10 @@ public class NaiveRotozoomer extends Frame {
         if (controller.isDemoModeEnabled())
             renderRotozoomer(
                     ((DataBufferInt) backbuffer.getRaster().getDataBuffer()).getData(),
-                    now * 2.0 * Math.PI / 1_000_000_000,
+                    now / 4e9 * 2.0 * Math.PI,
                     1.0,
                     0.0,
-                    0.0;
+                    0.0);
         else
             renderRotozoomer(
                     ((DataBufferInt) backbuffer.getRaster().getDataBuffer()).getData(),
