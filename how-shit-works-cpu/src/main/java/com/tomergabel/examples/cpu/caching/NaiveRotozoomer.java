@@ -7,12 +7,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 public class NaiveRotozoomer extends Frame {
-    private static int TEXTURE_W = 256;                                     // Must be a power of 2
-    private static int TEXTURE_H = 256;                                     // Must be a power of 2
-    private static long FPS_COUNTER_INTERVAL_SECONDS = 1;
-    private static long FPS_COUNTER_INTERVAL_NANOS = FPS_COUNTER_INTERVAL_SECONDS * 1_000_000_000L;
+    protected static int TEXTURE_W = 256;                                     // Must be a power of 2
+    protected static int TEXTURE_H = 256;                                     // Must be a power of 2
+    protected static long FPS_COUNTER_INTERVAL_SECONDS = 1;
+    protected static long FPS_COUNTER_INTERVAL_NANOS = FPS_COUNTER_INTERVAL_SECONDS * 1_000_000_000L;
 
-    private int[] texture;
+    protected int[] texture;
     private Controller controller;
     private BufferedImage backbuffer;
     private Graphics2D backbufferGraphics;
@@ -101,7 +101,7 @@ public class NaiveRotozoomer extends Frame {
         this("Rotozoomer");
     }
 
-    NaiveRotozoomer(String title) {
+    protected NaiveRotozoomer(String title) {
         super(title);
 
         addWindowListener(new WindowAdapter() {
@@ -200,7 +200,7 @@ public class NaiveRotozoomer extends Frame {
         }
     }
 
-    private void renderRotozoomer(
+    protected void renderRotozoomer(
             int[] pixels,
             double angleInRadians,
             double zoomFactor,
