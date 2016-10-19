@@ -1,24 +1,108 @@
 package com.tomergabel.examples.cpu.caching;
 
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-/**
- * Created by tomerga on 18/10/2016.
- */
 public class NaiveRotozoomer extends Frame {
-    private static int TEXTURE_W = 256;
-    private static int TEXTURE_H = 256;
+    private static int TEXTURE_W = 256;                                     // Must be a power of 2
+    private static int TEXTURE_H = 256;                                     // Must be a power of 2
+    private static long FPS_COUNTER_INTERVAL_SECONDS = 1;
+    private static long FPS_COUNTER_INTERVAL_NANOS = FPS_COUNTER_INTERVAL_SECONDS * 1_000_000_000L;
 
     private int[] texture;
+    private Controller controller;
     private BufferedImage backbuffer;
-    private Graphics offscreen;
+    private Graphics2D backbufferGraphics;
+    private int frameCounter;
+    private long lastUpdated = Long.MIN_VALUE;
+    private String currentFPS = "FPS: Unknown";
 
-    NaiveRotozoomer() {
-        super("Rotozoomer");
+    private class Controller implements MouseMotionListener, MouseWheelListener, KeyListener {
+        private double prevX = 0;
+        private double prevY = 0;
+        private double angle = 0.0;
+        private double horizontalOffset = TEXTURE_W / 2.0;
+        private double verticalOffset = TEXTURE_H / 2.0;
+        private double zoom = 1.0;
+        private boolean demoMode = true;
+
+        @Override public void mouseDragged(MouseEvent e) { }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            if (!demoMode) {
+                double dx = e.getX() - prevX;
+                double dy = e.getY() - prevY;
+
+                if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+                    horizontalOffset += dx;
+                    verticalOffset += dy;
+                } else {
+                    angle += (dx / getWidth() + dy / getHeight()) * Math.PI * 2.0;
+                }
+
+                prevX = e.getX();
+                prevY = e.getY();
+                repaint();
+            }
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            if (!demoMode) {
+                zoom += e.getPreciseWheelRotation() / 10.0;
+                repaint();
+            }
+        }
+
+        double getAngle() {
+            return angle;
+        }
+
+        double getHorizontalOffset() {
+            return horizontalOffset;
+        }
+
+        double getVerticalOffset() {
+            return verticalOffset;
+        }
+
+        double getZoom() {
+            return zoom;
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            switch (e.getKeyChar()) {
+                case 'd':
+                    demoMode = !demoMode;
+                    break;
+            }
+            repaint();
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
+
+        boolean isDemoModeEnabled() {
+            return demoMode;
+        }
+    }
+
+    private NaiveRotozoomer() {
+        this("Rotozoomer");
+    }
+
+    NaiveRotozoomer(String title) {
+        super(title);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -29,7 +113,19 @@ public class NaiveRotozoomer extends Frame {
         });
 
         setSize(640, 480);
+        initializeController();
+        initializeTexture();
+        setVisible(true);
+    }
 
+    private void initializeController() {
+        controller = new Controller();
+        addMouseMotionListener(controller);
+        addMouseWheelListener(controller);
+        addKeyListener(controller);
+    }
+
+    private void initializeTexture() {
         texture = new int[TEXTURE_W * TEXTURE_H];
         int offset = 0;
         for (int y = 0; y < TEXTURE_H; y++)
@@ -38,33 +134,85 @@ public class NaiveRotozoomer extends Frame {
                 texture[offset] = 0xff000000 + (intensity << 16) + (intensity << 8) + intensity;
                 offset++;
             }
+    }
 
-        setVisible(true);
+    private void reportFPS() {
+        Rectangle2D bounds =
+                backbufferGraphics.getFontMetrics().getStringBounds("FPS: Unknown", backbufferGraphics);
+        int margin = 50;
+        int padding = 10;
+        backbufferGraphics.clearRect(
+                getWidth() - ((int) bounds.getWidth() + padding * 2 + margin),
+                margin,
+                (int) bounds.getWidth() + padding * 2,
+                (int) bounds.getHeight() + padding * 2);
+        backbufferGraphics.drawString(
+                currentFPS,
+                getWidth() - ((int) bounds.getWidth() + padding + margin),
+                margin + (int) bounds.getHeight() + padding /* Drawing upwards?! */ );
     }
 
     @Override
     public void paint(Graphics g) {
         if (backbuffer == null) {
             backbuffer = (BufferedImage) createImage(getWidth(), getHeight());
-            offscreen = backbuffer.getGraphics();
-            offscreen.setColor(Color.BLACK);
-            offscreen.fillRect(0, 0, getWidth(), getHeight());
+            backbufferGraphics = backbuffer.createGraphics();
+            backbufferGraphics.setBackground(Color.BLACK);
+            backbufferGraphics.setColor(Color.YELLOW);
         }
 
-        final int[] pixels = ((DataBufferInt) backbuffer.getRaster().getDataBuffer()).getData();
+        long now = System.nanoTime();
+        if (controller.isDemoModeEnabled())
+            renderRotozoomer(
+                    ((DataBufferInt) backbuffer.getRaster().getDataBuffer()).getData(),
+                    now * 2.0 * Math.PI / 1_000_000_000,
+                    1.0,
+                    0.0,
+                    0.0;
+        else
+            renderRotozoomer(
+                    ((DataBufferInt) backbuffer.getRaster().getDataBuffer()).getData(),
+                    controller.getAngle(),
+                    controller.getZoom(),
+                    controller.getHorizontalOffset(),
+                    controller.getVerticalOffset());
 
-        double angle = (360.0 - 25.0) * Math.PI / 180.0;
-        double zoom = 1.0;
-        double aspect = getWidth() / (double) getHeight();
-        double tx = 0.0;
-        double ty = 0.0;
+        updateFrameCounter(now);
 
-        double startu = (tx - getWidth() / 2);
-        double startv = (ty - getHeight() / 2);
-        double du1 = startu * Math.cos(angle) * zoom / getWidth();
-        double dv1 = startv * Math.sin(angle) * zoom / getHeight();
-        double du2 = startu * Math.cos(angle - Math.PI / 2.0) * zoom / getWidth();
-        double dv2 = startv * Math.sin(angle - Math.PI / 2.0) * zoom / getHeight();
+        if (controller.isDemoModeEnabled())
+            reportFPS();
+
+        g.drawImage(backbuffer, 0, 0, this);
+
+        if (controller.isDemoModeEnabled())
+            repaint();
+    }
+
+    private void updateFrameCounter(long now) {
+        frameCounter++;
+        if (lastUpdated == Long.MIN_VALUE) {
+            lastUpdated = now;
+            frameCounter = 0;
+        } else if (now > lastUpdated + FPS_COUNTER_INTERVAL_NANOS) {
+            currentFPS = "FPS: " + (int) (frameCounter / FPS_COUNTER_INTERVAL_SECONDS);
+            lastUpdated = now;
+            frameCounter = 0;
+        }
+    }
+
+    private void renderRotozoomer(
+            int[] pixels,
+            double angleInRadians,
+            double zoomFactor,
+            double horizontalOffset,
+            double verticalOffset)
+    {
+        double startu = -getWidth() / 2.0;
+        double startv = -getHeight() / 2.0;
+        double du1 = startu * Math.cos(angleInRadians) * zoomFactor / getWidth();
+        double dv1 = startv * Math.sin(angleInRadians) * zoomFactor / getHeight();
+        double du2 = startu * Math.cos(angleInRadians - Math.PI / 2.0) * zoomFactor / getWidth();
+        double dv2 = startv * Math.sin(angleInRadians - Math.PI / 2.0) * zoomFactor / getHeight();
 
         int offset = 0;
         double lu = startu;
@@ -73,8 +221,8 @@ public class NaiveRotozoomer extends Frame {
             double u = lu;
             double v = lv;
             for (int x = 0; x < getWidth(); x++) {
-                int atu = ((int) u) & 0xff; // FIX
-                int atv = ((int) v) & 0xff;
+                int atu = (int)(u + horizontalOffset) & (TEXTURE_W - 1);
+                int atv = (int)(v + verticalOffset) & (TEXTURE_H - 1);
                 pixels[offset] = texture[atv * 256 + atu];
                 offset++;
                 u += du1;
@@ -83,8 +231,6 @@ public class NaiveRotozoomer extends Frame {
             lu += du2;
             lv += dv2;
         }
-
-        g.drawImage(backbuffer, 0, 0, this);
     }
 
     @Override
