@@ -1,78 +1,97 @@
-// Based off of http://stackoverflow.com/questions/21432400/is-branch-prediction-not-working
-
 package com.tomergabel.examples.cpu.caching;
 
 import org.openjdk.jmh.annotations.*;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A simple cache performance benchmark. Creates a bunch of random bytes, and sums up bytes from random locations
- * within the array. The locations are bound by successively larger spans while total amount of data is the same
- * between runs; this showcases the access penalty difference between L1-L3 caches and main memory.
+ * A simple cache performance benchmark. Creates an "image" (2-dimensional array of ARGB8888 pixels) and
+ * transposes it using various block sizes (the naive version does it sequentially). This clearly shows that
+ * even suboptimal blocking is tremendously beneficial.
+ *
+ * Sample results:
+ * <pre>
+ *     Run complete. Total time: 00:01:02
+ *
+ *     Benchmark                             Mode  Cnt   Score   Error  Units
+ *     SortCacheEffects.transposeNaive       avgt   10  43.851 ± 6.000  ms/op
+ *     SortCacheEffects.transposeTiled8x8    avgt   10  20.641 ± 1.646  ms/op
+ *     SortCacheEffects.transposeTiled16x16  avgt   10  18.515 ± 1.833  ms/op
+ *     SortCacheEffects.transposeTiled48x48  avgt   10  21.941 ± 1.954  ms/op
+ * </pre>
  */
+@SuppressWarnings({"Duplicates", "SuspiciousNameCombination"})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)
 @Measurement(iterations = 5, time = 1)
-@State(Scope.Thread)
 @Fork(2)
-public class CachingShowcase {
+@State(Scope.Thread)
+public class Showcase {
+    private final static int WIDTH = 3840;
+    private final static int HEIGHT = 2160;
+    private final static int IMAGE_SIZE = WIDTH * HEIGHT;
+    private final static long RANDOM_SEED = 0xdeadbeef;
 
-    /*
-        # Run complete. Total time: 00:01:10
+    private int[] pixels;
 
-        Benchmark                            Mode  Cnt     Score    Error  Units
-        CachingShowcase.accessingMainMemory  avgt   10  1252.513 ± 72.487  ms/op
-        CachingShowcase.fitsWithinL1         avgt   10   261.145 ±  6.679  ms/op
-        CachingShowcase.fitsWithinL2         avgt   10   310.477 ±  7.438  ms/op
-        CachingShowcase.fitsWithinL3         avgt   10  1101.759 ± 58.822  ms/op
-     */
-
-    static int L1_SIZE = 32768;
-    static int L2_SIZE = 262144;
-    static int L3_SIZE = 4194304;
-    static int CACHE_LINE_SIZE = 64;
-    static int L2_ASSOCIATIVITY = 8;
-    static int TOTAL_DATA_READ = 20 * 1024 * 1024;
-
-    int[] data;
-    private Random random;
-
-    @Setup
+    @Setup(Level.Trial)
     public void setup() {
-        random = new Random(0xdeadbeef);
-        data = random.ints(L3_SIZE * 2).toArray();
-    }
-
-    private long massiveRead(int span) {
-        long sum = 0;
-        int offset = 0;
-        for (int i = 0; i < TOTAL_DATA_READ; i++) {
-            sum += data[offset];
-            offset = random.nextInt(span);
-        }
-        return sum;
+        pixels = new Random(RANDOM_SEED).ints(IMAGE_SIZE).toArray();
     }
 
     @Benchmark
-    public long fitsWithinL1() {
-        return massiveRead(L1_SIZE / 2);
+    public int[] transposeNaive() {
+        int[] target = new int[IMAGE_SIZE];
+
+        for (int y = 0; y < HEIGHT; y++)
+            for (int x = 0; x < WIDTH; x++)
+                target[x * HEIGHT + y] = pixels[y * WIDTH + x];
+
+        return target;
+    }
+
+    private int[] transposeTiled(int blockSize) {
+        assert((WIDTH % blockSize) == 0 &&
+                (HEIGHT % blockSize) == 0);
+        int[] target = new int[IMAGE_SIZE];
+
+        for (int by = 0; by < HEIGHT; by += blockSize)
+            for (int bx = 0; bx < WIDTH; bx += blockSize)
+                for (int y = 0; y < blockSize; y++)
+                    for (int x = 0; x < blockSize; x++)
+                        target[(x + bx) * HEIGHT + (y + by)] = pixels[(y + by) * WIDTH + (x + bx)];
+
+        return target;
     }
 
     @Benchmark
-    public long fitsWithinL2() {
-        return massiveRead(L2_SIZE / 2);
+    public int[] transposeTiled8x8() {
+        return transposeTiled(8);
     }
 
     @Benchmark
-    public long fitsWithinL3() {
-        return massiveRead(L3_SIZE / 2);
+    public int[] transposeTiled16x16() {
+        return transposeTiled(16);
     }
 
     @Benchmark
-    public long accessingMainMemory() {
-        return massiveRead(data.length);
+    public int[] transposeTiled48x48() {
+        return transposeTiled(48);
+    }
+
+    static public void main(String[] args) {
+        // Quick & dirty validation
+        Showcase s = new Showcase();
+        s.setup();
+        int[] naive = s.transposeNaive();
+        int[] b8 = s.transposeTiled8x8();
+        int[] b16 = s.transposeTiled16x16();
+        int[] b48 = s.transposeTiled48x48();
+        System.out.println("b8\t" + Arrays.equals(naive, b8));
+        System.out.println("b16\t" + Arrays.equals(naive, b16));
+        System.out.println("b48\t" + Arrays.equals(naive, b48));
     }
 }

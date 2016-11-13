@@ -15,10 +15,11 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)
 @Measurement(iterations = 3, time = 1)
-@State(Scope.Thread)
 @Fork(2)
+@State(Scope.Thread)
 public class Baseline {
-    private final byte[] data = new byte[Configuration.DATA_SIZE];
+
+    private byte[] data = new byte[Configuration.DATA_SIZE];
 
     @Setup
     public void setup() {
