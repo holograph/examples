@@ -1,4 +1,4 @@
-package com.tomergabel.examples.cpu.caching;
+package com.tomergabel.examples.cpu;
 
 import org.openjdk.jmh.annotations.*;
 
@@ -13,23 +13,20 @@ import java.util.concurrent.TimeUnit;
  *
  * Sample results:
  * <pre>
- *     Run complete. Total time: 00:01:02
- *
- *     Benchmark                             Mode  Cnt   Score   Error  Units
- *     SortCacheEffects.transposeNaive       avgt   10  43.851 ± 6.000  ms/op
- *     SortCacheEffects.transposeTiled8x8    avgt   10  20.641 ± 1.646  ms/op
- *     SortCacheEffects.transposeTiled16x16  avgt   10  18.515 ± 1.833  ms/op
- *     SortCacheEffects.transposeTiled48x48  avgt   10  21.941 ± 1.954  ms/op
+ *     Benchmark                            Mode  Cnt   Score   Error  Units
+ *     CachingShowcase.transposeNaive       avgt   10  43.851 ± 6.000  ms/op
+ *     CachingShowcase.transposeTiled8x8    avgt   10  20.641 ± 1.646  ms/op
+ *     CachingShowcase.transposeTiled16x16  avgt   10  18.515 ± 1.833  ms/op
+ *     CachingShowcase.transposeTiled48x48  avgt   10  21.941 ± 1.954  ms/op
  * </pre>
  */
-@SuppressWarnings({"Duplicates", "SuspiciousNameCombination"})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @BenchmarkMode(Mode.AverageTime)
 @Warmup(iterations = 2, time = 1)
 @Measurement(iterations = 5, time = 1)
 @Fork(2)
 @State(Scope.Thread)
-public class Showcase {
+public class CachingShowcase {
     private final static int WIDTH = 3840;
     private final static int HEIGHT = 2160;
     private final static int IMAGE_SIZE = WIDTH * HEIGHT;
@@ -84,7 +81,7 @@ public class Showcase {
 
     static public void main(String[] args) {
         // Quick & dirty validation
-        Showcase s = new Showcase();
+        CachingShowcase s = new CachingShowcase();
         s.setup();
         int[] naive = s.transposeNaive();
         int[] b8 = s.transposeTiled8x8();
