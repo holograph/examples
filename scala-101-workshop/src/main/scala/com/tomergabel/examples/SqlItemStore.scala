@@ -86,5 +86,5 @@ class SqlItemStore extends ItemStore {
         .apply()
     }
 
-  override def reset(): Unit = DB autoCommit { implicit session => sql"truncate items".execute().apply() }
+  override def reset(): Unit = DB autoCommit { implicit session => sql"truncate table items".execute().apply() }
 }
