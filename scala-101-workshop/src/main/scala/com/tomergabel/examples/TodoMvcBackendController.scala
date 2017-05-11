@@ -2,7 +2,7 @@ package com.tomergabel.examples
 
 import java.util.UUID
 
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.http.{Request, Status}
 import com.twitter.finatra.http.Controller
 import com.twitter.finatra.request.RouteParam
 
@@ -17,7 +17,10 @@ class TodoMvcBackendController(baseUrl: String, store: ItemStore) extends Contro
   private def externalizeItem(item: PersistedItem): ExistingItem =
     ExistingItem(item.title, item.completed, buildUrl(item.id), item.order)
 
-  options("/:*") { _: Request => response.ok /* for CORS support */ }
+  options("/:*") { _: Request =>
+    // Endpoint for CORS support
+    response.ok
+  }
 
   get("/") { _: Request =>
     store.allItems() map externalizeItem

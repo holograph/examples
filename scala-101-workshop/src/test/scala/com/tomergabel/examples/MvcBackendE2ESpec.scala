@@ -1,46 +1,18 @@
 package com.tomergabel.examples
 
-import com.twitter.finagle.http.Response
-import com.twitter.finagle.http.Status._
 import com.twitter.finatra.http.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTestMixin
 import org.scalatest.{Matchers, WordSpec}
 
 case class Item(url: String, title: String, order: Option[Int], completed: Boolean)
 
-class MvcBackendE2ESpec extends WordSpec with Matchers with FeatureTestMixin {
-
+class MvcBackendE2ESpec
+  extends WordSpec
+  with Matchers
+  with FeatureTestMixin
+  with TodoMvcApiDriver
+{
   val server = new EmbeddedHttpServer(new TodoMvcServer with InMemoryStore)
-
-  def listAllItems(): Seq[Item] = server.httpGetJson[Seq[Item]]("/", andExpect = Ok)
-
-  def addItem(title: String, order: Option[Int] = None): Item = {
-    val json = server.mapper.objectMapper.createObjectNode()
-    json.put("title", title)
-    order.foreach(json.put("order", _))
-    server.httpPostJson[Item]("/", postBody = json.toString, andExpect = Created)
-  }
-
-  def getItem(url: String): Item =
-    server.httpGetJson[Item](url, andExpect = Ok)
-
-  def assertItemDoesNotExist(url: String): Response = server.httpGet(url, andExpect = NotFound)
-
-  def patchItem(url: String,
-                newTitle: Option[String] = None,
-                newCompleted: Option[Boolean] = None,
-                newOrder: Option[Int] = None): Item =
-  {
-    val json = server.mapper.objectMapper.createObjectNode()
-    newTitle.foreach(json.put("title", _))
-    newCompleted.foreach(json.put("completed", _))
-    newOrder.foreach(json.put("order", _))
-    server.httpPatchJson[Item](url, patchBody = json.toString, andExpect = Ok)
-  }
-
-  def deleteItem(url: String): Unit = server.httpDelete(url, andExpect = Ok)
-
-  def deleteAllItems(): Unit = server.httpDelete("/", andExpect = Ok)
 
   "TodoMVC server" when {
 
@@ -55,13 +27,13 @@ class MvcBackendE2ESpec extends WordSpec with Matchers with FeatureTestMixin {
       }
 
       "support CORS preflight request from todobackend.com" in {
-        val response =
-          server.httpOptions("/", headers = Map(
-            "Access-Control-Request-Method" -> "GET",
-            "Origin" -> "http://www.todobackend.com"
-          ))
+        val corsRequestHeaders = Map(
+          "Access-Control-Request-Method" -> "GET",
+          "Origin" -> "http://www.todobackend.com"
+        )
 
-        response.status shouldEqual Ok
+        val response = server.httpOptions("/", headers = corsRequestHeaders)
+
         response.headerMap should contain allOf(
           "Access-Control-Allow-Methods" -> "GET",
           "Access-Control-Allow-Origin" -> "http://www.todobackend.com"
@@ -161,4 +133,44 @@ class MvcBackendE2ESpec extends WordSpec with Matchers with FeatureTestMixin {
       }
     }
   }
+}
+
+trait TodoMvcApiDriver {
+  import com.twitter.finagle.http.Status._
+
+  protected def server: EmbeddedHttpServer
+
+  protected def listAllItems(): Seq[Item] =
+    server.httpGetJson[Seq[Item]]("/", andExpect = Ok)
+
+  protected def addItem(title: String, order: Option[Int] = None): Item = {
+    val json = server.mapper.objectMapper.createObjectNode()
+    json.put("title", title)
+    order.foreach(json.put("order", _))
+    server.httpPostJson[Item]("/", postBody = json.toString, andExpect = Created)
+  }
+
+  def getItem(url: String): Item =
+    server.httpGetJson[Item](url, andExpect = Ok)
+
+  def assertItemDoesNotExist(url: String): Unit =
+    server.httpGet(url, andExpect = NotFound)
+
+  def patchItem(url: String,
+                newTitle: Option[String] = None,
+                newCompleted: Option[Boolean] = None,
+                newOrder: Option[Int] = None): Item =
+  {
+    val json = server.mapper.objectMapper.createObjectNode()
+    newTitle.foreach(json.put("title", _))
+    newCompleted.foreach(json.put("completed", _))
+    newOrder.foreach(json.put("order", _))
+    server.httpPatchJson[Item](url, patchBody = json.toString, andExpect = Ok)
+  }
+
+  def deleteItem(url: String): Unit =
+    server.httpDelete(url, andExpect = Ok)
+
+  def deleteAllItems(): Unit =
+    server.httpDelete("/", andExpect = Ok)
 }
