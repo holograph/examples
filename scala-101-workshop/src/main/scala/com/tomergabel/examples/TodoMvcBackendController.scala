@@ -2,7 +2,7 @@ package com.tomergabel.examples
 
 import java.util.UUID
 
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 import com.twitter.finatra.request.RouteParam
 
