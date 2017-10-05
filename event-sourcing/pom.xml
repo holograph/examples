@@ -10,7 +10,7 @@
     <version>1.0</version>
 
     <modules>
-        <!--<module>core</module>-->
+        <module>core</module>
         <module>lean-and-mean</module>
         <!--<module>spring-boot</module>-->
         <!--<module>dagger2</module>-->

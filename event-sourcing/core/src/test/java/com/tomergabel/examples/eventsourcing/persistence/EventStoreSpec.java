@@ -4,6 +4,7 @@ import com.tomergabel.examples.eventsourcing.model.SiteDeleted;
 import com.tomergabel.examples.eventsourcing.model.SiteEvent;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,13 +21,13 @@ abstract class EventStoreSpec {
     abstract EventStore getStore();
     
     @Test
-    void getEventsReturnsEmptySequenceForNonexistentSite() {
+    void getEventsReturnsEmptySequenceForNonexistentSite() throws IOException {
         List<SiteEvent> events = getStore().getEvents(UUID.randomUUID());
         assertTrue(events.isEmpty());
     }
 
     @Test
-    void getEventsReturnsFullEventStreamByDefault() {
+    void getEventsReturnsFullEventStreamByDefault() throws IOException {
         UUID siteId = UUID.randomUUID();
         getStore().addEvents(siteId, allEvents);
 
@@ -36,7 +37,7 @@ abstract class EventStoreSpec {
     }
 
     @Test
-    void getEventsRespectsFromVersion() {
+    void getEventsRespectsFromVersion() throws IOException {
         UUID siteId = UUID.randomUUID();
         getStore().addEvents(siteId, allEvents);
 
@@ -46,7 +47,7 @@ abstract class EventStoreSpec {
     }
 
     @Test
-    void getEventsRespectsToVersion() {
+    void getEventsRespectsToVersion() throws IOException {
         UUID siteId = UUID.randomUUID();
         getStore().addEvents(siteId, allEvents);
 
@@ -56,7 +57,7 @@ abstract class EventStoreSpec {
     }
 
     @Test
-    void addEventReturnsFalseIfVersionAlreadyExists() {
+    void addEventReturnsFalseIfVersionAlreadyExists() throws IOException {
         UUID siteId = UUID.randomUUID();
         getStore().addEvents(siteId, Arrays.asList(created0, updated1));
 
