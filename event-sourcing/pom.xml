@@ -4,8 +4,8 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.tomergabel.examples.event-sourcing</groupId>
-    <artifactId>aggregate</artifactId>
+    <groupId>com.tomergabel.examples</groupId>
+    <artifactId>event-sourcing</artifactId>
     <packaging>pom</packaging>
     <version>1.0</version>
 
