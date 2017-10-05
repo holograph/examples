@@ -15,6 +15,7 @@ public class SampleSite {
     public static JsonNode delta2;
     public static JsonNode delta3;
     public static JsonNode delta4;
+    public static JsonNode intermediateBlob;
     public static JsonNode finalBlob;
 
     public static UUID siteId = UUID.randomUUID();
@@ -29,7 +30,8 @@ public class SampleSite {
     public static SiteEvent archived5;
     public static List<SiteEvent> allEvents;
 
-    public static long finalVersion;
+    public static SiteSnapshot intermediateState;
+    public static SiteSnapshot finalState;
 
     static {
         try {
@@ -37,6 +39,7 @@ public class SampleSite {
             delta1 = mapper.readTree("[{\"op\":\"add\",\"path\":\"/name\",\"value\":\"my site\"}]");
             delta2 = mapper.readTree("[{\"op\":\"add\",\"path\":\"/url\",\"value\":\"http://www.example.com\"}]");
             delta3 = mapper.readTree("[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"other site\"}]");
+            intermediateBlob = mapper.readTree("{\"name\":\"other site\", \"url\":\"http://www.example.com\"}");
             delta4 = mapper.readTree("[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"my site\"}]");
             finalBlob = mapper.readTree("{\"name\":\"my site\", \"url\":\"http://www.example.com\"}");
 
@@ -47,7 +50,9 @@ public class SampleSite {
             restored4 = new SiteRestored(4, user, Instant.now(), 2, delta4);
             archived5 = new SiteDeleted(5, user, Instant.now());
             allEvents = Arrays.asList(created0, updated1, updated2, updated3, restored4, archived5);
-            finalVersion = 5;
+
+            intermediateState = new SiteSnapshot(siteId, 3, owner, intermediateBlob, false);
+            finalState = new SiteSnapshot(siteId, 5, owner, finalBlob, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

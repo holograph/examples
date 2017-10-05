@@ -17,9 +17,9 @@ class SiteMaterializerTest {
         allEvents.forEach(mat::append);
 
         SiteSnapshot snapshot = mat.materialize();
-        assertEquals(snapshot.getVersion(), finalVersion);
-        assertEquals(snapshot.getBlob(), finalBlob);
-        assertEquals(snapshot.getOwner(), owner);
+        assertEquals(finalState.getVersion(), snapshot.getVersion());
+        assertEquals(finalBlob, snapshot.getBlob());
+        assertEquals(owner, snapshot.getOwner());
         assertTrue(snapshot.getDeleted());
     }
 
@@ -54,7 +54,8 @@ class SiteMaterializerTest {
         SiteMaterializer mat = new SiteMaterializer(siteId);
         allEvents.forEach(mat::append);
 
-        SiteEvent update = new SiteUpdated(finalVersion + 1, user, Instant.now(), new ObjectMapper().createArrayNode());
+        SiteEvent update =
+                new SiteUpdated(finalState.getVersion() + 1, user, Instant.now(), new ObjectMapper().createArrayNode());
 
         assertThrows(IllegalEventStreamException.class, () -> mat.append(update));
     }

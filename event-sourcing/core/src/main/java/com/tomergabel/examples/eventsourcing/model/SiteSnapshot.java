@@ -6,16 +6,22 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class SiteSnapshot {
+    private UUID siteId;
     private long version;
     private UUID owner;
     private JsonNode blob;
     private boolean deleted;
 
-    public SiteSnapshot(long version, UUID owner, JsonNode blob, boolean deleted) {
+    public SiteSnapshot(UUID siteId, long version, UUID owner, JsonNode blob, boolean deleted) {
+        this.siteId = siteId;
         this.version = version;
         this.owner = owner;
         this.blob = blob;
         this.deleted = deleted;
+    }
+
+    public UUID getSiteId() {
+        return siteId;
     }
 
     public long getVersion() {
@@ -41,12 +47,13 @@ public class SiteSnapshot {
         SiteSnapshot that = (SiteSnapshot) o;
         return version == that.version &&
                 deleted == that.deleted &&
+                Objects.equals(siteId, that.siteId) &&
                 Objects.equals(owner, that.owner) &&
                 Objects.equals(blob, that.blob);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(version, owner, blob, deleted);
+        return Objects.hash(siteId, version, owner, blob, deleted);
     }
 }

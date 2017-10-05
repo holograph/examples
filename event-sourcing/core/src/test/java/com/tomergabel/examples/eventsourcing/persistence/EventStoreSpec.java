@@ -2,6 +2,7 @@ package com.tomergabel.examples.eventsourcing.persistence;
 
 import com.tomergabel.examples.eventsourcing.model.SiteDeleted;
 import com.tomergabel.examples.eventsourcing.model.SiteEvent;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,20 +19,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class EventStoreSpec {
 
-    abstract EventStore getStore();
-    
+    protected abstract EventStore instantiateStore();
+
+    private EventStore store;
+
+    @BeforeEach
+    void setupStore() {
+        store = instantiateStore();
+    }
+
     @Test
     void getEventsReturnsEmptySequenceForNonexistentSite() throws IOException {
-        List<SiteEvent> events = getStore().getEvents(UUID.randomUUID());
+        List<SiteEvent> events = store.getEvents(UUID.randomUUID());
         assertTrue(events.isEmpty());
     }
 
     @Test
     void getEventsReturnsFullEventStreamByDefault() throws IOException {
         UUID siteId = UUID.randomUUID();
-        getStore().addEvents(siteId, allEvents);
+        store.addEvents(siteId, allEvents);
 
-        List<SiteEvent> storedEvents = getStore().getEvents(siteId);
+        List<SiteEvent> storedEvents = store.getEvents(siteId);
 
         assertIterableEquals(allEvents, storedEvents);
     }
@@ -39,9 +47,9 @@ abstract class EventStoreSpec {
     @Test
     void getEventsRespectsFromVersion() throws IOException {
         UUID siteId = UUID.randomUUID();
-        getStore().addEvents(siteId, allEvents);
+        store.addEvents(siteId, allEvents);
 
-        List<SiteEvent> eventTail = getStore().getEvents(siteId, updated3.getVersion(), null);
+        List<SiteEvent> eventTail = store.getEvents(siteId, updated3.getVersion(), null);
 
         assertIterableEquals(Arrays.asList(updated3, restored4, archived5), eventTail);
     }
@@ -49,9 +57,9 @@ abstract class EventStoreSpec {
     @Test
     void getEventsRespectsToVersion() throws IOException {
         UUID siteId = UUID.randomUUID();
-        getStore().addEvents(siteId, allEvents);
+        store.addEvents(siteId, allEvents);
 
-        List<SiteEvent> eventSlice = getStore().getEvents(siteId, null, updated3.getVersion());
+        List<SiteEvent> eventSlice = store.getEvents(siteId, null, updated3.getVersion());
 
         assertIterableEquals(Arrays.asList(created0, updated1, updated2, updated3), eventSlice);
     }
@@ -59,11 +67,11 @@ abstract class EventStoreSpec {
     @Test
     void addEventReturnsFalseIfVersionAlreadyExists() throws IOException {
         UUID siteId = UUID.randomUUID();
-        getStore().addEvents(siteId, Arrays.asList(created0, updated1));
+        store.addEvents(siteId, Arrays.asList(created0, updated1));
 
         SiteEvent conflicting = new SiteDeleted(updated1.getVersion(), user, Instant.now());
 
-        boolean result = getStore().addEvents(siteId, Collections.singletonList(conflicting));
+        boolean result = store.addEvents(siteId, Collections.singletonList(conflicting));
         assertFalse(result);
     }
 }

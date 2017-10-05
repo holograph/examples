@@ -24,7 +24,7 @@ public class SiteMaterializer {
         if (version == Long.MIN_VALUE)
             throw new IllegalEventStreamException("Empty event stream", siteId, 0);
 
-        return new SiteSnapshot(version, owner, blob, deleted);
+        return new SiteSnapshot(siteId, version, owner, blob, deleted);
     }
 
     SiteMaterializer append(SiteEvent event) throws IllegalEventStreamException {
