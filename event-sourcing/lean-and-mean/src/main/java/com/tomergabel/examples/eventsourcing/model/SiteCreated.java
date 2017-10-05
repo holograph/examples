@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class SiteCreated extends SiteEvent {
-    public SiteCreated(long version, UUID userId, Instant timestamp) {
-        super(version, userId, timestamp);
+    public SiteCreated(UUID userId, Instant timestamp) {
+        super(0, userId, timestamp);
     }
 }

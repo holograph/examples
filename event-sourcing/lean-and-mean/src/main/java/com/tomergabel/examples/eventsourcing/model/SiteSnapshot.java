@@ -8,13 +8,13 @@ public class SiteSnapshot {
     private long version;
     private UUID owner;
     private JsonNode blob;
-    private boolean archived;
+    private boolean deleted;
 
-    public SiteSnapshot(long version, UUID owner, JsonNode blob, boolean archived) {
+    public SiteSnapshot(long version, UUID owner, JsonNode blob, boolean deleted) {
         this.version = version;
         this.owner = owner;
         this.blob = blob;
-        this.archived = archived;
+        this.deleted = deleted;
     }
 
     public long getVersion() {
@@ -29,7 +29,7 @@ public class SiteSnapshot {
         return blob;
     }
 
-    public boolean getArchived() {
-        return archived;
+    public boolean getDeleted() {
+        return deleted;
     }
 }

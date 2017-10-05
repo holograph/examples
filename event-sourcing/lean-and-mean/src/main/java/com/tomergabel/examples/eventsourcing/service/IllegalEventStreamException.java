@@ -6,14 +6,21 @@ public class IllegalEventStreamException extends RuntimeException {
     private UUID siteId;
     private long version;
 
-    public IllegalEventStreamException(String message, Throwable cause, UUID siteId, long version) {
-        super("Illegal event stream for site " + siteId + " at version " + version + ": " + message, cause);
+    public IllegalEventStreamException(String message, Throwable cause, UUID siteId, long atVersion) {
+        super("Illegal event stream for site " + siteId + " at version " + atVersion + ": " + message, cause);
         this.siteId = siteId;
         this.version = version;
     }
 
-    public IllegalEventStreamException(String message, UUID siteId, long version) {
-        this(message, null, siteId, version);
+    public IllegalEventStreamException(String message, UUID siteId, long atVersion) {
+        this(message, null, siteId, atVersion);
     }
 
+    public UUID getSiteId() {
+        return siteId;
+    }
+
+    public long getVersion() {
+        return version;
+    }
 }
