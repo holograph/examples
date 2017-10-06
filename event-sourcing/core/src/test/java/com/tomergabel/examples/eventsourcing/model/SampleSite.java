@@ -15,7 +15,10 @@ public class SampleSite {
     public static JsonNode delta2;
     public static JsonNode delta3;
     public static JsonNode delta4;
-    public static JsonNode intermediateBlob;
+    public static JsonNode blob1;
+    public static JsonNode blob2;
+    public static JsonNode blob3;
+    public static JsonNode blob4;
     public static JsonNode finalBlob;
 
     public static UUID siteId = UUID.randomUUID();
@@ -37,10 +40,13 @@ public class SampleSite {
         try {
             ObjectMapper mapper = new ObjectMapper();
             delta1 = mapper.readTree("[{\"op\":\"add\",\"path\":\"/name\",\"value\":\"my site\"}]");
+            blob1 = mapper.readTree("{\"name\":\"my site\"}");
             delta2 = mapper.readTree("[{\"op\":\"add\",\"path\":\"/url\",\"value\":\"http://www.example.com\"}]");
+            blob2 = mapper.readTree("{\"name\":\"my site\",\"url\":\"http://www.example.com\"}");
             delta3 = mapper.readTree("[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"other site\"}]");
-            intermediateBlob = mapper.readTree("{\"name\":\"other site\", \"url\":\"http://www.example.com\"}");
+            blob3 = mapper.readTree("{\"name\":\"other site\", \"url\":\"http://www.example.com\"}");
             delta4 = mapper.readTree("[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"my site\"}]");
+            blob4 = mapper.readTree("{\"name\":\"my site\", \"url\":\"http://www.example.com\"}");
             finalBlob = mapper.readTree("{\"name\":\"my site\", \"url\":\"http://www.example.com\"}");
 
             created0 = new SiteCreated(owner, Instant.now());
@@ -51,7 +57,7 @@ public class SampleSite {
             archived5 = new SiteDeleted(5, user, Instant.now());
             allEvents = Arrays.asList(created0, updated1, updated2, updated3, restored4, archived5);
 
-            intermediateState = new SiteSnapshot(siteId, 3, owner, intermediateBlob, false);
+            intermediateState = new SiteSnapshot(siteId, 3, owner, blob3, false);
             finalState = new SiteSnapshot(siteId, 5, owner, finalBlob, true);
         } catch (Exception e) {
             throw new RuntimeException(e);

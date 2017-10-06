@@ -14,6 +14,14 @@ public class SiteMaterializer {
         this.siteId = siteId;
     }
 
+    public SiteMaterializer(SiteSnapshot snapshot) {
+        siteId = snapshot.getSiteId();
+        version = snapshot.getVersion();
+        owner = snapshot.getOwner();
+        deleted = snapshot.getDeleted();
+        blob = snapshot.getBlob();
+    }
+
     private ObjectMapper mapper = new ObjectMapper();
     private JsonNode blob = mapper.createObjectNode();
     private UUID owner = null;
