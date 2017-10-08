@@ -13,19 +13,17 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.tomergabel.examples.eventsourcing.model.SampleSite.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 abstract class EventStoreSpec {
 
-    protected abstract EventStore instantiateStore();
+    protected abstract EventStore getStore();
 
     private EventStore store;
 
     @BeforeEach
     void setupStore() {
-        store = instantiateStore();
+        store = getStore();
     }
 
     @Test

@@ -52,7 +52,7 @@ public class SampleSite {
             created0 = new SiteCreated(owner, Instant.now());
             updated1 = new SiteUpdated(1, owner, Instant.now(), delta1);
             updated2 = new SiteUpdated(2, owner, Instant.now(), delta2);
-            updated3 = new SiteUpdated(3, siteId, Instant.now(), delta3);
+            updated3 = new SiteUpdated(3, owner, Instant.now(), delta3);
             restored4 = new SiteRestored(4, user, Instant.now(), 2, delta4);
             archived5 = new SiteDeleted(5, user, Instant.now());
             allEvents = Arrays.asList(created0, updated1, updated2, updated3, restored4, archived5);
@@ -63,6 +63,4 @@ public class SampleSite {
             throw new RuntimeException(e);
         }
     }
-
-
 }
