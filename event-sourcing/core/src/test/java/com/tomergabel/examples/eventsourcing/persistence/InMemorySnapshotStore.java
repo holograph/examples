@@ -8,9 +8,14 @@ import java.util.stream.Stream;
 public class InMemorySnapshotStore implements SnapshotStore {
 
     private Map<UUID, ArrayList<SiteSnapshot>> snapshotMap = new HashMap<>();
+    private UUID lastQueriedSite;
+    private Long lastQueriedVersion;
 
     @Override
     public synchronized Optional<SiteSnapshot> findLatestSnapshot(UUID siteId, Long atVersion) {
+        lastQueriedSite = siteId;
+        lastQueriedVersion = atVersion;
+
         if (!snapshotMap.containsKey(siteId))
             return Optional.empty();
 
@@ -29,5 +34,19 @@ public class InMemorySnapshotStore implements SnapshotStore {
 
         snapshots.add(snapshot);
         return true;
+    }
+
+    public UUID getLastQueriedSite() {
+        return lastQueriedSite;
+    }
+
+    public Long getLastQueriedVersion() {
+        return lastQueriedVersion;
+    }
+
+    public synchronized void reset() {
+        snapshotMap.clear();
+        lastQueriedSite = null;
+        lastQueriedVersion = null;
     }
 }

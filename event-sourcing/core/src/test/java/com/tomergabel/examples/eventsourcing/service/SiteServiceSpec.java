@@ -2,6 +2,7 @@ package com.tomergabel.examples.eventsourcing.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tomergabel.examples.eventsourcing.model.SampleSite;
+import com.tomergabel.examples.eventsourcing.model.SiteEvent;
 import com.tomergabel.examples.eventsourcing.model.SiteSnapshot;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class SiteServiceSpec {
 
-    private SiteService service;
-    private ObjectMapper mapper = new ObjectMapper();
+    protected SiteService service;
+    protected ObjectMapper mapper = new ObjectMapper();
 
     protected abstract SiteService instantiateService();
 
@@ -64,19 +65,20 @@ public abstract class SiteServiceSpec {
     }
 
     @Test
-    void createReturnsTrueIfSiteCreatedSuccessfully() throws IOException {
-        boolean result = service.create(UUID.randomUUID(), UUID.randomUUID());
-        assertTrue(result);
+    void createReturnsInitialVersionIfSiteCreatedSuccessfully() throws IOException {
+        OptionalLong result = service.create(UUID.randomUUID(), UUID.randomUUID());
+        assertTrue(result.isPresent());
+        assertEquals(SiteEvent.INITIAL_VERSION, result.getAsLong());
     }
     
     @Test
-    void createReturnsFalseIfSiteAlreadyExists() throws IOException {
+    void createReturnsEmptyResultIfSiteAlreadyExists() throws IOException {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
         service.create(siteId, owner);
 
-        boolean result = service.create(siteId, owner);
-        assertFalse(result);
+        OptionalLong result = service.create(siteId, owner);
+        assertFalse(result.isPresent());
     }
 
     @Test
@@ -134,7 +136,7 @@ public abstract class SiteServiceSpec {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
         service.create(siteId, owner);
-        long version = service.delete(siteId, owner).getAsLong();
+        service.delete(siteId, owner);
 
         Optional<SiteSnapshot> result = service.getSnapshot(siteId, null);
         assertTrue(result.isPresent());
@@ -174,7 +176,7 @@ public abstract class SiteServiceSpec {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
         service.create(siteId, owner);
-        service.update(siteId, owner, 0, SampleSite.delta1).getAsLong();
+        service.update(siteId, owner, 0, SampleSite.delta1);
         service.restore(siteId, owner, 0);
 
         Optional<SiteSnapshot> result = service.getSnapshot(siteId, null);

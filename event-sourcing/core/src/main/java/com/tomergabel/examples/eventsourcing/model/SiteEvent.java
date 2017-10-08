@@ -5,6 +5,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class SiteEvent {
+
+    public static long INITIAL_VERSION = 0;
+
     protected long version;
     protected UUID userId;
     protected Instant timestamp;

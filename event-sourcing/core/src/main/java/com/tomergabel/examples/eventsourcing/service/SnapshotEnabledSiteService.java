@@ -50,9 +50,12 @@ public class SnapshotEnabledSiteService implements SiteService {
     }
 
     @Override
-    public boolean create(UUID siteId, UUID ownerId) throws IOException {
+    public OptionalLong create(UUID siteId, UUID ownerId) throws IOException {
         SiteCreated creationEvent = new SiteCreated(ownerId, clock.instant());
-        return eventStore.addEvents(siteId, Collections.singletonList(creationEvent));
+        if (eventStore.addEvents(siteId, Collections.singletonList(creationEvent)))
+            return OptionalLong.of(creationEvent.getVersion());
+        else
+            return OptionalLong.empty();
     }
 
     @Override

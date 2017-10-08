@@ -5,6 +5,6 @@ import java.util.UUID;
 
 public class SiteCreated extends SiteEvent {
     public SiteCreated(UUID userId, Instant timestamp) {
-        super(0, userId, timestamp);
+        super(SiteEvent.INITIAL_VERSION, userId, timestamp);
     }
 }

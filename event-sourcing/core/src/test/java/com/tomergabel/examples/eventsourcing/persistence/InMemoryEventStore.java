@@ -9,9 +9,16 @@ import java.util.stream.Stream;
 public class InMemoryEventStore implements EventStore {
 
     private Map<UUID, ArrayList<SiteEvent>> eventMap = new HashMap<>();
+    private UUID lastQueriedSite = null;
+    private Long lastQueriedFromVersion = null;
+    private Long lastQueriedToVersion = null;
 
     @Override
     public synchronized List<SiteEvent> getEvents(UUID siteId, Long from, Long to) {
+        lastQueriedSite = siteId;
+        lastQueriedFromVersion = from;
+        lastQueriedToVersion = to;
+
         if (!eventMap.containsKey(siteId)) return Collections.emptyList();
         Stream<SiteEvent> events = eventMap.get(siteId).stream();
         if (from != null) events = events.filter(event -> event.getVersion() >= from);
@@ -29,5 +36,23 @@ public class InMemoryEventStore implements EventStore {
 
         eventStream.addAll(events);
         return true;
+    }
+
+    public synchronized void reset() {
+        eventMap.clear();
+        lastQueriedFromVersion = null;
+        lastQueriedToVersion = null;
+    }
+
+    public UUID getLastQueriedSite() {
+        return lastQueriedSite;
+    }
+
+    public Long getLastQueriedFromVersion() {
+        return lastQueriedFromVersion;
+    }
+
+    public Long getLastQueriedToVersion() {
+        return lastQueriedToVersion;
     }
 }
