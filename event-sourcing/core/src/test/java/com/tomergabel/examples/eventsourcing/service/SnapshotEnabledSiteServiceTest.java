@@ -46,6 +46,7 @@ public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
         service.getSnapshot(siteId, null);
 
         List<SiteEvent> expected = Collections.singletonList(new SiteCreated(owner, clock.instant()));
+        assertTrue(snapshotStrategy.queried());
         assertNull(snapshotStrategy.lastQueriedSnapshot);
         assertIterableEquals(expected, snapshotStrategy.lastQueriedTail);
     }
