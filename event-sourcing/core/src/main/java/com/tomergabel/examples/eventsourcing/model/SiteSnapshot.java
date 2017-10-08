@@ -1,5 +1,7 @@
 package com.tomergabel.examples.eventsourcing.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Objects;
@@ -12,7 +14,12 @@ public class SiteSnapshot {
     private JsonNode blob;
     private boolean deleted;
 
-    public SiteSnapshot(UUID siteId, long version, UUID owner, JsonNode blob, boolean deleted) {
+    @JsonCreator
+    public SiteSnapshot(@JsonProperty("siteId") UUID siteId,
+                        @JsonProperty("version") long version,
+                        @JsonProperty("owner") UUID owner,
+                        @JsonProperty("blob") JsonNode blob,
+                        @JsonProperty("deleted") boolean deleted) {
         this.siteId = siteId;
         this.version = version;
         this.owner = owner;
@@ -20,23 +27,23 @@ public class SiteSnapshot {
         this.deleted = deleted;
     }
 
-    public UUID getSiteId() {
+    @JsonProperty public UUID getSiteId() {
         return siteId;
     }
 
-    public long getVersion() {
+    @JsonProperty public long getVersion() {
         return version;
     }
 
-    public UUID getOwner() {
+    @JsonProperty public UUID getOwner() {
         return owner;
     }
 
-    public JsonNode getBlob() {
+    @JsonProperty public JsonNode getBlob() {
         return blob;
     }
 
-    public boolean getDeleted() {
+    @JsonProperty public boolean getDeleted() {
         return deleted;
     }
 

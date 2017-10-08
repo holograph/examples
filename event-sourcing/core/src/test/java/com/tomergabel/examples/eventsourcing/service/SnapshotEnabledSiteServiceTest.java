@@ -80,28 +80,4 @@ public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
         assertEquals(expected, result.get());
         assertEquals(siteId, snapshotStore.getLastQueriedSite());
     }
-
-    private static class MockSnapshotStrategy implements SnapshotStrategy {
-        SiteSnapshot lastQueriedSnapshot = null;
-        List<SiteEvent> lastQueriedTail = null;
-        boolean response = false;
-
-        @Override
-        public boolean shouldTakeSnapshot(SiteSnapshot baseSnapshot, List<SiteEvent> tail) {
-            lastQueriedSnapshot = baseSnapshot;
-            lastQueriedTail = tail;
-            return response;
-        }
-
-        boolean queried() {
-            return lastQueriedSnapshot != null || lastQueriedTail != null;
-        }
-
-        void reset() {
-            lastQueriedTail = null;
-            lastQueriedSnapshot = null;
-            response = false;
-        }
-    }
-
 }
