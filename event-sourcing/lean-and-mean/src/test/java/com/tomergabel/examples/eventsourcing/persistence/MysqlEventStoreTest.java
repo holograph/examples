@@ -21,7 +21,7 @@ class MysqlEventStoreTest extends EventStoreSpec {
         embeddedMysql = anEmbeddedMysql(v5_7_latest).addSchema("events").start();
 
         database = new DBI(
-                "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events",
+                "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events?useSSL=false",
                 embeddedMysql.getConfig().getUsername(),
                 embeddedMysql.getConfig().getPassword());
         database.registerArgumentFactory(new InstantArgumentFactory());

@@ -8,13 +8,15 @@ import com.tomergabel.examples.eventsourcing.model.*;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.io.IOException;
+import java.sql.BatchUpdateException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +42,8 @@ public class MysqlEventStore implements EventStore {
         } else if (event instanceof SiteDeleted) {
             type = "deleted";
         } else if (event instanceof SiteRestored) {
-            type = "updated";
+            type = "restored";
+            payload.put("restoredVersion", ((SiteRestored) event).getRestoredVersion());
             payload.set("delta", ((SiteRestored) event).getDelta());
         } else
             throw new IllegalStateException("Cannot encode unknown site event type " + event.getClass().getSimpleName());
@@ -63,16 +66,22 @@ public class MysqlEventStore implements EventStore {
                 if (version != SiteEvent.INITIAL_VERSION)
                     throw new SQLException("Unexpected version " + version + " on creation event");
                 return new SiteCreated(userId, timestamp);
+
             case "updated":
                 return new SiteUpdated(version, userId, timestamp, payload.get("delta"));
+
             case "deleted":
                 return new SiteDeleted(version, userId, timestamp);
+
             case "restored":
                 JsonNode restoredVersion = payload.get("restoredVersion");
-                if (!restoredVersion.isLong())
+                if (restoredVersion == null)
+                    throw new SQLException("Invalid payload: missing \"restoredVersion\" field");
+                if (!restoredVersion.canConvertToLong())
                     throw new SQLException("Unexpected non-numeric restored version " + restoredVersion.toString());
                 JsonNode delta = payload.get("delta");
                 return new SiteRestored(version, userId, timestamp, restoredVersion.longValue(), delta);
+
             default:
                 throw new SQLException("Unrecognized event type " + type.textValue());
         }
@@ -81,13 +90,12 @@ public class MysqlEventStore implements EventStore {
     private static ResultSetMapper<SiteEvent> eventRowMapper = new ResultSetMapper<SiteEvent>() {
         @Override
         public SiteEvent map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
-            // Read from result set
             UUID userId = readUUID(resultSet.getBytes("user"));
             long version = resultSet.getLong("version");
             Instant timestamp = resultSet.getTimestamp("timestamp").toInstant();
             JsonNode payload;
             try {
-                 payload = mapper.readTree(resultSet.getBinaryStream("payload"));
+                payload = mapper.readTree(resultSet.getBinaryStream("payload"));
             } catch (IOException e) {
                 throw new SQLException("Failed to read event payload", e);
             }
@@ -116,6 +124,15 @@ public class MysqlEventStore implements EventStore {
         });
     }
 
+    static boolean isPKViolation(Exception e) {
+        // Eww.
+        return e instanceof UnableToExecuteStatementException
+                && e.getCause() != null
+                && e.getCause() instanceof BatchUpdateException
+                && e.getCause().getCause() != null
+                && e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException;
+    }
+
     @Override
     public boolean addEvents(UUID siteId, List<SiteEvent> events) {
         return database.inTransaction((handle, tx) -> {
@@ -131,14 +148,16 @@ public class MysqlEventStore implements EventStore {
                     event.getTimestamp(),
                     encodeEventPayload(event)));
 
-            int[] result = batch.execute();
-
-            if (Arrays.stream(result).allMatch(inserted -> inserted == 1))
-                return true;
-            else {
-                tx.setRollbackOnly();
-                return false;
+            try {
+                batch.execute();
+            } catch (Exception e) {
+                if (isPKViolation(e))
+                    return false;
+                else
+                    throw e;
             }
+
+            return true;
         });
     }
 
