@@ -9,24 +9,24 @@ import org.skife.jdbi.v2.DBI;
 import static com.wix.mysql.EmbeddedMysql.anEmbeddedMysql;
 import static com.wix.mysql.distribution.Version.v5_7_latest;
 
-class MysqlEventStoreTest extends EventStoreSpec {
+public class MysqlSnapshotStoreTest extends SnapshotStoreSpec {
 
     static EmbeddedMysql embeddedMysql;
     static DBI database;
-    static MysqlEventStore store;
+    static SnapshotStore store;
 
     @BeforeAll
     static void setup() {
         embeddedMysql =
                 anEmbeddedMysql(v5_7_latest)
-                        .addSchema("events", Sources.fromString(MysqlEventStore.SCHEMA_DDL))
+                        .addSchema("snapshots", Sources.fromString(MysqlSnapshotStore.SCHEMA_DDL))
                         .start();
         database = new DBI(
-                "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events?useSSL=false",
+                "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/snapshots?useSSL=false",
                 embeddedMysql.getConfig().getUsername(),
                 embeddedMysql.getConfig().getPassword());
-        MysqlEventStore.configureDatabase(database);
-        store = new MysqlEventStore(database);
+        MysqlSnapshotStore.configureDatabase(database);
+        store = new MysqlSnapshotStore(database);
     }
 
     @AfterAll
@@ -35,7 +35,7 @@ class MysqlEventStoreTest extends EventStoreSpec {
     }
 
     @Override
-    protected EventStore getStore() {
+    protected SnapshotStore getStore() {
         return store;
     }
 }

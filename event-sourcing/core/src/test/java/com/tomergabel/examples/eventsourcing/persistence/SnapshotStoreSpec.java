@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class SnapshotStoreSpec {
     
-    protected abstract SnapshotStore instantiateStore();
+    protected abstract SnapshotStore getStore();
     
     private SnapshotStore store;
     
     @BeforeEach
     void setupStore() {
-        store = instantiateStore();
+        store = getStore();
     }
     
     @Test
@@ -32,40 +32,44 @@ public abstract class SnapshotStoreSpec {
 
     @Test
     void findLatestSnapshotReturnsLatestAvailableSnapshotIfNoVersionSpecified() throws IOException {
-        store.persistSnapshot(SampleSite.intermediateState);
-        store.persistSnapshot(SampleSite.finalState);
+        SampleSite site = new SampleSite();
+        store.persistSnapshot(site.intermediateState);
+        store.persistSnapshot(site.finalState);
 
-        Optional<SiteSnapshot> snapshot = store.findLatestSnapshot(SampleSite.siteId, null);
+        Optional<SiteSnapshot> snapshot = store.findLatestSnapshot(site.id, null);
         assertTrue(snapshot.isPresent());
-        assertEquals(SampleSite.finalState, snapshot.get());
+        assertEquals(site.finalState, snapshot.get());
     }
     
     @Test
     void findLatestSnapshotEmptyOnExistingSiteWithNoSuitableSnapshot() throws IOException {
-        store.persistSnapshot(SampleSite.finalState);
+        SampleSite site = new SampleSite();
+        store.persistSnapshot(site.finalState);
 
         Optional<SiteSnapshot> snapshot =
-                store.findLatestSnapshot(SampleSite.siteId, SampleSite.finalState.getVersion() - 1);
+                store.findLatestSnapshot(site.id, site.finalState.getVersion() - 1);
         assertFalse(snapshot.isPresent());
     }
     
     @Test
     void findLatestSnapshotReturnsSuitableSnapshotIfVersionSpecified() throws IOException {
-        store.persistSnapshot(SampleSite.intermediateState);
-        store.persistSnapshot(SampleSite.finalState);
+        SampleSite site = new SampleSite();
+        store.persistSnapshot(site.intermediateState);
+        store.persistSnapshot(site.finalState);
 
         Optional<SiteSnapshot> snapshot =
-                store.findLatestSnapshot(SampleSite.siteId, SampleSite.finalState.getVersion() - 1);
+                store.findLatestSnapshot(site.id, site.finalState.getVersion() - 1);
 
         assertTrue(snapshot.isPresent());
-        assertEquals(SampleSite.intermediateState, snapshot.get());
+        assertEquals(site.intermediateState, snapshot.get());
     }
     
     @Test
     void persistSnapshotReturnsFalseIfSnapshotAlreadyAvailableForVersion() throws IOException {
-        store.persistSnapshot(SampleSite.finalState);
+        SampleSite site = new SampleSite();
+        store.persistSnapshot(site.finalState);
 
-        boolean result = store.persistSnapshot(SampleSite.finalState);
+        boolean result = store.persistSnapshot(site.finalState);
         assertFalse(result);
     }
 }

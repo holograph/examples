@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("WeakerAccess")
 public class SampleSite {
 
     public static JsonNode delta1;
@@ -21,20 +20,20 @@ public class SampleSite {
     public static JsonNode blob4;
     public static JsonNode finalBlob;
 
-    public static UUID siteId = UUID.randomUUID();
-    public static UUID owner = UUID.randomUUID();
-    public static UUID user = UUID.randomUUID();
+    public final UUID id = UUID.randomUUID();
+    public final UUID owner = UUID.randomUUID();
+    public final UUID user = UUID.randomUUID();
 
-    public static SiteEvent created0;
-    public static SiteEvent updated1;
-    public static SiteEvent updated2;
-    public static SiteEvent updated3;
-    public static SiteEvent restored4;
-    public static SiteEvent archived5;
-    public static List<SiteEvent> allEvents;
+    public final SiteEvent created0 = new SiteCreated(owner, Instant.now());
+    public final SiteEvent updated1 = new SiteUpdated(1, owner, Instant.now(), delta1);
+    public final SiteEvent updated2 = new SiteUpdated(2, owner, Instant.now(), delta2);
+    public final SiteEvent updated3 = new SiteUpdated(3, owner, Instant.now(), delta3);
+    public final SiteEvent restored4 = new SiteRestored(4, user, Instant.now(), 2, delta4);
+    public final SiteEvent archived5 = new SiteDeleted(5, user, Instant.now());
+    public final List<SiteEvent> allEvents = Arrays.asList(created0, updated1, updated2, updated3, restored4, archived5);
 
-    public static SiteSnapshot intermediateState;
-    public static SiteSnapshot finalState;
+    public final SiteSnapshot intermediateState = new SiteSnapshot(id, 3, owner, blob3, false);
+    public final SiteSnapshot finalState = new SiteSnapshot(id, 5, owner, finalBlob, true);
 
     static {
         try {
@@ -48,17 +47,6 @@ public class SampleSite {
             delta4 = mapper.readTree("[{\"op\":\"replace\",\"path\":\"/name\",\"value\":\"my site\"}]");
             blob4 = mapper.readTree("{\"name\":\"my site\", \"url\":\"http://www.example.com\"}");
             finalBlob = mapper.readTree("{\"name\":\"my site\", \"url\":\"http://www.example.com\"}");
-
-            created0 = new SiteCreated(owner, Instant.now());
-            updated1 = new SiteUpdated(1, owner, Instant.now(), delta1);
-            updated2 = new SiteUpdated(2, owner, Instant.now(), delta2);
-            updated3 = new SiteUpdated(3, owner, Instant.now(), delta3);
-            restored4 = new SiteRestored(4, user, Instant.now(), 2, delta4);
-            archived5 = new SiteDeleted(5, user, Instant.now());
-            allEvents = Arrays.asList(created0, updated1, updated2, updated3, restored4, archived5);
-
-            intermediateState = new SiteSnapshot(siteId, 3, owner, blob3, false);
-            finalState = new SiteSnapshot(siteId, 5, owner, finalBlob, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

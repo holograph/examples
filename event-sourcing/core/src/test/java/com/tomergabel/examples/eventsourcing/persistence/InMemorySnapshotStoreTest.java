@@ -2,7 +2,7 @@ package com.tomergabel.examples.eventsourcing.persistence;
 
 public class InMemorySnapshotStoreTest extends SnapshotStoreSpec {
     @Override
-    protected SnapshotStore instantiateStore() {
+    protected SnapshotStore getStore() {
         return new InMemorySnapshotStore();
     }
 }

@@ -10,18 +10,16 @@ import io.dropwizard.jdbi.args.InstantMapper;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.io.IOException;
-import java.sql.BatchUpdateException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.tomergabel.examples.eventsourcing.persistence.JDBIHelpers.isPKViolation;
 import static com.tomergabel.examples.eventsourcing.persistence.UUIDMapper.readUUID;
 
 public class MysqlEventStore implements EventStore {
@@ -126,15 +124,6 @@ public class MysqlEventStore implements EventStore {
         });
     }
 
-    static boolean isPKViolation(Exception e) {
-        // Eww.
-        return e instanceof UnableToExecuteStatementException
-                && e.getCause() != null
-                && e.getCause() instanceof BatchUpdateException
-                && e.getCause().getCause() != null
-                && e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException;
-    }
-
     @Override
     public boolean addEvents(UUID siteId, List<SiteEvent> events) {
         return database.inTransaction((handle, tx) -> {
@@ -162,22 +151,16 @@ public class MysqlEventStore implements EventStore {
         });
     }
 
-    public void createSchema() {
-        database.withHandle(handle -> {
-            handle.execute(
-                    "create table events (                 " +
-                    "   site_id binary(16),                " +
-                    "   version int,                       " +
-                    "   user binary(16),                   " +
-                    "   timestamp timestamp,               " +
-                    "   payload blob,                      " +
-                    "   primary key (site_id, version desc)" +
-                    ")                                     " +
-                    "engine=innodb;                        "
-            );
-            return null;
-        });
-    }
+    public static String SCHEMA_DDL =
+            "create table events (                 " +
+            "   site_id binary(16),                " +
+            "   version int,                       " +
+            "   user binary(16),                   " +
+            "   timestamp timestamp,               " +
+            "   payload blob,                      " +
+            "   primary key (site_id, version desc)" +
+            ")                                     " +
+            "engine=innodb;                        ";
 
     public static void configureDatabase(DBI database) {
         database.registerArgumentFactory(new InstantArgumentFactory());
