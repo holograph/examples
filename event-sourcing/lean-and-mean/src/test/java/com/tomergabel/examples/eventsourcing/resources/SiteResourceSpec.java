@@ -12,6 +12,8 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 import static com.tomergabel.examples.eventsourcing.model.SampleSite.*;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class SiteResourceSpec {
@@ -30,9 +32,6 @@ public abstract class SiteResourceSpec {
     }
     private SiteSnapshot getSite(UUID siteId) {
         return getSite(siteId, null);
-    }
-    private Response getSiteRaw(UUID siteId, Long atVersion) {
-        return resource(siteId, atVersion).get();
     }
     private Response getSiteRaw(UUID siteId) {
         return resource(siteId).get();
@@ -55,7 +54,7 @@ public abstract class SiteResourceSpec {
     public void getSnapshotReturns404OnNonexistentSite() {
         Response response = getSiteRaw(UUID.randomUUID());
 
-        assertEquals(Response.Status.NOT_FOUND, response.getStatusInfo());
+        assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -104,11 +103,11 @@ public abstract class SiteResourceSpec {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
         long v0 = createSite(siteId, owner);
-        long v1 = updateSite(siteId, v0, owner, delta1);
+        @SuppressWarnings("unused") long v1 = updateSite(siteId, v0, owner, delta1);
 
         Response response = updateSiteRaw(siteId, v0, owner, delta3);  // Note conflicting update with v1
 
-        assertEquals(Response.Status.CONFLICT, response.getStatusInfo());
+        assertEquals(CONFLICT.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -119,6 +118,6 @@ public abstract class SiteResourceSpec {
 
         Response response = createSiteRaw(siteId, owner);              // Note conflicting creation
 
-        assertEquals(Response.Status.CONFLICT, response.getStatusInfo());
+        assertEquals(CONFLICT.getStatusCode(), response.getStatus());
     }
 }

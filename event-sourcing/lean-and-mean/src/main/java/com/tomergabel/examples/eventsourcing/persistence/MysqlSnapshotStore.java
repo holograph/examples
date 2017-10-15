@@ -44,7 +44,7 @@ public class MysqlSnapshotStore implements SnapshotStore {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Optional<SiteSnapshot> findLatestSnapshot(UUID siteId, Long atVersion) throws IOException {
+    public Optional<SiteSnapshot> findLatestSnapshot(UUID siteId, Long atVersion) {
         return database.withHandle(handle -> {
             StringBuilder sql =
                     new StringBuilder("select version, owner, `blob`, deleted from snapshots where site_id=:id");
@@ -74,7 +74,7 @@ public class MysqlSnapshotStore implements SnapshotStore {
     }
 
     @Override
-    public boolean persistSnapshot(SiteSnapshot snapshot) throws IOException {
+    public boolean persistSnapshot(SiteSnapshot snapshot) {
         return database.withHandle(handle -> {
             try {
                 int inserted = handle.insert(

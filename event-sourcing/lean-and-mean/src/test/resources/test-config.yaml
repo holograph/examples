@@ -1,5 +1,11 @@
-database:
+events:
   driverClass: com.mysql.jdbc.Driver
   user: test
   password: test
   url: jdbc:mysql://localhost:3310/events?useSSL=false
+
+snapshots:
+  driverClass: com.mysql.jdbc.Driver
+  user: test
+  password: test
+  url: jdbc:mysql://localhost:3310/snapshots?useSSL=false
