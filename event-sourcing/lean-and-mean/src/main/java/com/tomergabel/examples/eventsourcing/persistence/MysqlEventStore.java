@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tomergabel.examples.eventsourcing.model.*;
+import io.dropwizard.jdbi.args.InstantArgumentFactory;
+import io.dropwizard.jdbi.args.InstantMapper;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.StatementContext;
@@ -150,14 +152,13 @@ public class MysqlEventStore implements EventStore {
 
             try {
                 batch.execute();
+                return true;
             } catch (Exception e) {
                 if (isPKViolation(e))
                     return false;
                 else
                     throw e;
             }
-
-            return true;
         });
     }
 
@@ -176,5 +177,12 @@ public class MysqlEventStore implements EventStore {
             );
             return null;
         });
+    }
+
+    public static void configureDatabase(DBI database) {
+        database.registerArgumentFactory(new InstantArgumentFactory());
+        database.registerColumnMapper(new InstantMapper());
+        database.registerArgumentFactory(new UUIDMapper());
+        database.registerColumnMapper(new UUIDMapper());
     }
 }

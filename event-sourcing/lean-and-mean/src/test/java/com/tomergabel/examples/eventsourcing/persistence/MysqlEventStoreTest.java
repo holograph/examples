@@ -24,10 +24,7 @@ class MysqlEventStoreTest extends EventStoreSpec {
                 "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events?useSSL=false",
                 embeddedMysql.getConfig().getUsername(),
                 embeddedMysql.getConfig().getPassword());
-        database.registerArgumentFactory(new InstantArgumentFactory());
-        database.registerColumnMapper(new InstantMapper());
-        database.registerArgumentFactory(new UUIDMapper());
-        database.registerColumnMapper(new UUIDMapper());
+        MysqlEventStore.configureDatabase(database);
         store = new MysqlEventStore(database);
         store.createSchema();
     }
