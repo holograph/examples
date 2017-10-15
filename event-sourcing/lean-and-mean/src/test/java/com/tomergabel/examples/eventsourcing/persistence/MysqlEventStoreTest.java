@@ -1,6 +1,7 @@
 package com.tomergabel.examples.eventsourcing.persistence;
 
 import com.wix.mysql.EmbeddedMysql;
+import io.dropwizard.jdbi.args.InstantArgumentFactory;
 import io.dropwizard.jdbi.args.InstantMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,11 +19,15 @@ class MysqlEventStoreTest extends EventStoreSpec {
     @BeforeAll
     static void setup() {
         embeddedMysql = anEmbeddedMysql(v5_7_latest).addSchema("events").start();
+
         database = new DBI(
                 "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events",
                 embeddedMysql.getConfig().getUsername(),
                 embeddedMysql.getConfig().getPassword());
+        database.registerArgumentFactory(new InstantArgumentFactory());
         database.registerColumnMapper(new InstantMapper());
+        database.registerArgumentFactory(new UUIDMapper());
+        database.registerColumnMapper(new UUIDMapper());
         store = new MysqlEventStore(database);
         store.createSchema();
     }

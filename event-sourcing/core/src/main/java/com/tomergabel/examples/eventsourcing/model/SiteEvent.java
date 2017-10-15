@@ -43,4 +43,6 @@ public abstract class SiteEvent {
     public int hashCode() {
         return Objects.hash(version, userId);
     }
+
+    public abstract String toString();
 }

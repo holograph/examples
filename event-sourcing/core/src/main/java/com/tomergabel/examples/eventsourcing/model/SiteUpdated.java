@@ -31,4 +31,14 @@ public class SiteUpdated extends SiteEvent {
     public int hashCode() {
         return Objects.hash(super.hashCode(), delta);
     }
+
+    @Override
+    public String toString() {
+        return "SiteUpdated{" +
+                "delta=" + delta +
+                ", version=" + version +
+                ", userId=" + userId +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

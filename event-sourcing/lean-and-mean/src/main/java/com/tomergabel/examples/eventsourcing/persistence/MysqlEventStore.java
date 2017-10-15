@@ -11,13 +11,14 @@ import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static com.tomergabel.examples.eventsourcing.persistence.UUIDMapper.readUUID;
 
 public class MysqlEventStore implements EventStore {
 
@@ -77,21 +78,6 @@ public class MysqlEventStore implements EventStore {
         }
     }
 
-    private static UUID readUUID(byte[] bytes) throws SQLException {
-        if (bytes == null) throw new SQLException("Unexpected null instead of UUID");
-        if (bytes.length != 16) throw new SQLException("Unexpected UUID blob of size " + bytes.length);
-
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        return new UUID(buffer.getLong(), buffer.getLong());
-    }
-
-    private static byte[] writeUUID(UUID id) {
-        ByteBuffer buffer = ByteBuffer.allocate(16);
-        buffer.putLong(id.getMostSignificantBits());
-        buffer.putLong(id.getLeastSignificantBits());
-        return buffer.array();
-    }
-
     private static ResultSetMapper<SiteEvent> eventRowMapper = new ResultSetMapper<SiteEvent>() {
         @Override
         public SiteEvent map(int i, ResultSet resultSet, StatementContext statementContext) throws SQLException {
@@ -139,9 +125,9 @@ public class MysqlEventStore implements EventStore {
                             "values (?, ?, ?, ?, ?)");
 
             events.forEach(event -> batch.add(
-                    writeUUID(siteId),
+                    siteId,
                     event.getVersion(),
-                    writeUUID(event.getUserId()),
+                    event.getUserId(),
                     event.getTimestamp(),
                     encodeEventPayload(event)));
 

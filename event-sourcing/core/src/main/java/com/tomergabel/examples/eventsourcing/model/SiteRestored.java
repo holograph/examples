@@ -38,4 +38,15 @@ public class SiteRestored extends SiteEvent {
     public int hashCode() {
         return Objects.hash(super.hashCode(), restoredVersion, delta);
     }
+
+    @Override
+    public String toString() {
+        return "SiteRestored{" +
+                "restoredVersion=" + restoredVersion +
+                ", delta=" + delta +
+                ", version=" + version +
+                ", userId=" + userId +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }
