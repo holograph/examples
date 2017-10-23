@@ -1,0 +1,17 @@
+site-service:
+  image: examples/event-sourcing:lean-and-mean
+  ports:
+    - "8080:8080"
+  links:
+    - mysql
+
+mysql:
+  image: mysql:5.7
+  ports:
+    - "3306"
+  environment:
+    MYSQL_USER: "example"
+    MYSQL_PASSWORD: "example"
+    MYSQL_DATABASE: "example"
+    MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+

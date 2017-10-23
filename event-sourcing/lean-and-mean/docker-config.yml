@@ -1,0 +1,11 @@
+events:
+  driverClass: com.mysql.jdbc.Driver
+  user: example
+  password: example
+  url: jdbc:mysql://mysql:3306/example?useSSL=false
+
+snapshots:
+  driverClass: com.mysql.jdbc.Driver
+  user: example
+  password: example
+  url: jdbc:mysql://mysql:3306/example?useSSL=false
