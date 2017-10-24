@@ -57,6 +57,7 @@ public class SiteMaterializer {
                 throw new IllegalEventStreamException("Site already deleted", siteId, event.getVersion());
             blob = JsonPatch.apply(((SiteUpdated) event).getDelta(), blob);
         } else if (event instanceof SiteRestored) {
+            deleted = false;
             blob = JsonPatch.apply(((SiteRestored) event).getDelta(), blob);
         } else if (event instanceof SiteDeleted) {
             deleted = true;
