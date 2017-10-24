@@ -6,7 +6,6 @@ import com.tomergabel.examples.eventsourcing.server.SiteServiceConfiguration;
 import com.wix.mysql.EmbeddedMysql;
 import com.wix.mysql.config.MysqldConfig;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
