@@ -6,6 +6,7 @@ import com.tomergabel.examples.eventsourcing.model.*;
 import com.tomergabel.examples.eventsourcing.persistence.EventStore;
 import com.tomergabel.examples.eventsourcing.persistence.SnapshotStore;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.*;
@@ -17,6 +18,7 @@ public class SnapshotEnabledSiteService implements SiteService {
     private SnapshotStore snapshotStore;
     private SnapshotStrategy snapshotStrategy;
 
+    @Inject
     public SnapshotEnabledSiteService(EventStore eventStore,
                                       SnapshotStore snapshotStore,
                                       SnapshotStrategy snapshotStrategy,

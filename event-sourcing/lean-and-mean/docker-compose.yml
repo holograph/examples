@@ -3,15 +3,26 @@ site-service:
   ports:
     - "8080:8080"
   links:
-    - mysql
+    - events-db
+    - snapshots-db
 
-mysql:
+events-db:
   image: mysql:5.7
   ports:
     - "3306"
   environment:
     MYSQL_USER: "example"
     MYSQL_PASSWORD: "example"
-    MYSQL_DATABASE: "example"
+    MYSQL_DATABASE: "events"
+    MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+
+snapshots-db:
+  image: mysql:5.7
+  ports:
+    - "3306"
+  environment:
+    MYSQL_USER: "example"
+    MYSQL_PASSWORD: "example"
+    MYSQL_DATABASE: "snapshots"
     MYSQL_RANDOM_ROOT_PASSWORD: "yes"
 

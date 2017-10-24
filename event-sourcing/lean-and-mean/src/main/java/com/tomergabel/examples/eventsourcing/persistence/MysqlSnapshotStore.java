@@ -7,6 +7,8 @@ import org.skife.jdbi.v2.Query;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,20 +23,10 @@ public class MysqlSnapshotStore implements SnapshotStore {
 
     private DBI database;
 
-    public MysqlSnapshotStore(DBI database) {
+    @Inject
+    public MysqlSnapshotStore(@Named("snapshots") DBI database) {
         this.database = database;
     }
-
-    public static String SCHEMA_DDL =
-            "create table snapshots (              " +
-                    "   site_id binary(16),                " +
-                    "   version int,                       " +
-                    "   owner binary(16),                  " +
-                    "   `blob` blob,                       " +
-                    "   deleted boolean,                   " +
-                    "   primary key (site_id, version desc)" +
-                    ")                                     " +
-                    "engine=innodb;                        ";
 
     public static void configureDatabase(DBI database) {
         database.registerColumnMapper(new UUIDMapper());

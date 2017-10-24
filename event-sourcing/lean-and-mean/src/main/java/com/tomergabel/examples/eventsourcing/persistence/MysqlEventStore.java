@@ -12,6 +12,8 @@ import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +29,8 @@ public class MysqlEventStore implements EventStore {
     private DBI database;
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public MysqlEventStore(DBI database) {
+    @Inject
+    public MysqlEventStore(@Named("events") DBI database) {
         this.database = database;
     }
 
@@ -150,17 +153,6 @@ public class MysqlEventStore implements EventStore {
             }
         });
     }
-
-    public static String SCHEMA_DDL =
-            "create table events (                 " +
-            "   site_id binary(16),                " +
-            "   version int,                       " +
-            "   user binary(16),                   " +
-            "   timestamp timestamp,               " +
-            "   payload blob,                      " +
-            "   primary key (site_id, version desc)" +
-            ")                                     " +
-            "engine=innodb;                        ";
 
     public static void configureDatabase(DBI database) {
         database.registerArgumentFactory(new InstantArgumentFactory());

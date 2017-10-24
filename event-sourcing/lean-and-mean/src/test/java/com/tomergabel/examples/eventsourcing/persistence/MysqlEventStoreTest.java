@@ -1,7 +1,7 @@
 package com.tomergabel.examples.eventsourcing.persistence;
 
 import com.wix.mysql.EmbeddedMysql;
-import com.wix.mysql.Sources;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.skife.jdbi.v2.DBI;
@@ -17,14 +17,13 @@ class MysqlEventStoreTest extends EventStoreSpec {
 
     @BeforeAll
     static void setup() {
-        embeddedMysql =
-                anEmbeddedMysql(v5_7_latest)
-                        .addSchema("events", Sources.fromString(MysqlEventStore.SCHEMA_DDL))
-                        .start();
-        database = new DBI(
-                "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events?useSSL=false",
-                embeddedMysql.getConfig().getUsername(),
-                embeddedMysql.getConfig().getPassword());
+        embeddedMysql = anEmbeddedMysql(v5_7_latest).addSchema("events").start();
+        String jdbcUrl = "jdbc:mysql://localhost:" + embeddedMysql.getConfig().getPort() + "/events?useSSL=false";
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(jdbcUrl, embeddedMysql.getConfig().getUsername(), embeddedMysql.getConfig().getPassword());
+        flyway.setLocations("classpath:db/migration/events");
+        flyway.migrate();
+        database = new DBI(jdbcUrl, embeddedMysql.getConfig().getUsername(), embeddedMysql.getConfig().getPassword());
         MysqlEventStore.configureDatabase(database);
         store = new MysqlEventStore(database);
     }

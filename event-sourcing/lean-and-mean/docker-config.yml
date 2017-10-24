@@ -2,10 +2,10 @@ events:
   driverClass: com.mysql.jdbc.Driver
   user: example
   password: example
-  url: jdbc:mysql://mysql:3306/example?useSSL=false
+  url: jdbc:mysql://events-db:3306/events?useSSL=false
 
 snapshots:
   driverClass: com.mysql.jdbc.Driver
   user: example
   password: example
-  url: jdbc:mysql://mysql:3306/example?useSSL=false
+  url: jdbc:mysql://snapshots-db:3306/snapshots?useSSL=false

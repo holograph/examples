@@ -1,14 +1,12 @@
 package com.tomergabel.examples.eventsourcing.service;
 
-import com.tomergabel.examples.eventsourcing.persistence.MysqlEventStore;
-import com.tomergabel.examples.eventsourcing.persistence.MysqlSnapshotStore;
 import com.tomergabel.examples.eventsourcing.resources.SiteResourceSpec;
 import com.tomergabel.examples.eventsourcing.server.SiteServiceApplication;
 import com.tomergabel.examples.eventsourcing.server.SiteServiceConfiguration;
 import com.wix.mysql.EmbeddedMysql;
-import com.wix.mysql.Sources;
 import com.wix.mysql.config.MysqldConfig;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,8 +34,8 @@ public class SiteServiceAcceptanceTest extends SiteResourceSpec {
                 .withPort(3310)
                 .build();
         embeddedMysql = anEmbeddedMysql(config)
-                .addSchema("events", Sources.fromString(MysqlEventStore.SCHEMA_DDL))
-                .addSchema("snapshots", Sources.fromString(MysqlSnapshotStore.SCHEMA_DDL))
+                .addSchema("events")
+                .addSchema("snapshots")
                 .start();
     }
 

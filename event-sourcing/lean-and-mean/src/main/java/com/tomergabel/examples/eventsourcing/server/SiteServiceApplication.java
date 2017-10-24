@@ -10,8 +10,11 @@ import com.tomergabel.examples.eventsourcing.service.SnapshotEnabledSiteService;
 import com.tomergabel.examples.eventsourcing.service.SnapshotStrategy;
 import com.tomergabel.examples.eventsourcing.service.TailSizeSnapshotStrategy;
 import io.dropwizard.Application;
+import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
+import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.flywaydb.core.Flyway;
 import org.skife.jdbi.v2.DBI;
 
 import java.time.Clock;
@@ -24,14 +27,21 @@ public class SiteServiceApplication extends Application<SiteServiceConfiguration
     }
 
     @Override
+    public void initialize(Bootstrap<SiteServiceConfiguration> bootstrap) {
+    }
+
+
+    @Override
     public void run(SiteServiceConfiguration configuration, Environment environment) {
 
         DBI eventDB = new DBIFactory().build(environment, configuration.getEventsDatabaseFactory(), "events");
         MysqlEventStore.configureDatabase(eventDB);
+        migrateDatabase(configuration.getEventsDatabaseFactory(), "events");
         EventStore eventStore = new MysqlEventStore(eventDB);
 
         DBI snapshotDB = new DBIFactory().build(environment, configuration.getSnapshotsDatabaseFactory(), "snapshots");
         MysqlSnapshotStore.configureDatabase(snapshotDB);
+        migrateDatabase(configuration.getSnapshotsDatabaseFactory(), "snapshots");
         SnapshotStore snapshotStore = new MysqlSnapshotStore(snapshotDB);
 
         SnapshotStrategy snapshotStrategy = new TailSizeSnapshotStrategy(configuration.getMaxTailSize());
@@ -40,6 +50,13 @@ public class SiteServiceApplication extends Application<SiteServiceConfiguration
                 new SnapshotEnabledSiteService(eventStore, snapshotStore, snapshotStrategy, Clock.systemUTC());
 
         environment.jersey().register(new SiteResource(siteService));
+    }
+
+    private void migrateDatabase(DataSourceFactory factory, String schema) {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(factory.getUrl(), factory.getUser(), factory.getPassword());
+        flyway.setLocations("classpath:db/migration/" + schema);
+        flyway.migrate();
     }
 
     public static void main(String[] args) throws Exception {

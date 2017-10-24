@@ -12,7 +12,6 @@
     <modules>
         <module>core</module>
         <module>lean-and-mean</module>
-        <!--<module>spring-boot</module>-->
-        <!--<module>dagger2</module>-->
+        <module>guice</module>
     </modules>
 </project>
