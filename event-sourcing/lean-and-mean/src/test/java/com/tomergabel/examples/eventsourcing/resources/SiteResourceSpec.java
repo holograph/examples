@@ -16,6 +16,7 @@ import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.glassfish.jersey.client.ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class SiteResourceSpec {
 
@@ -197,6 +198,18 @@ public abstract class SiteResourceSpec {
         Response response = getSiteRaw(siteId);
 
         assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void getSnapshotAtVersionReflectsDeletionStatusOfSite() {
+        UUID siteId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        createSite(siteId, owner);
+        long deleted = deleteSite(siteId, owner);
+
+        SiteSnapshot response = getSite(siteId, deleted);
+
+        assertTrue(response.getDeleted());
     }
 
     @Test

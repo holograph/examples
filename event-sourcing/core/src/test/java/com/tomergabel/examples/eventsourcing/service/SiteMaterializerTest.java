@@ -64,4 +64,21 @@ class SiteMaterializerTest {
 
         assertThrows(IllegalEventStreamException.class, () -> mat.append(update));
     }
+
+    @Test
+    void restoreEventResetsDeletedFlag() {
+        SiteMaterializer mat = new SiteMaterializer(site.id);
+        site.allEvents.forEach(mat::append);
+        SiteRestored restored = new SiteRestored(
+                site.finalState.getVersion() + 1,
+                site.user,
+                Instant.now(),
+                2,
+                new ObjectMapper().createArrayNode());
+        mat.append(restored);
+
+        SiteSnapshot result = mat.materialize();
+
+        assertFalse(result.getDeleted());
+    }
 }
