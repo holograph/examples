@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 import static com.tomergabel.examples.eventsourcing.model.SampleSite.*;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.glassfish.jersey.client.ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION;
@@ -170,7 +169,7 @@ public abstract class SiteResourceSpec {
 
         Response response = restoreSiteRaw(siteId, owner, 14L);
 
-        assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test

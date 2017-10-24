@@ -57,6 +57,18 @@ public class SiteResource {
             return Response.status(Response.Status.CONFLICT).build();
     }
 
+    @PUT
+    public Response restoreVersion(
+            @PathParam("id") UUID siteId,
+            RestoreSiteRequest request) throws IOException
+    {
+        OptionalLong result = service.restore(siteId, request.getUser(), request.getTargetVersion());
+        if (result.isPresent())
+            return Response.ok(new VersionResponse(result.getAsLong())).build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
     @PATCH
     @Path("/versions/{version}")
     public Response updateVersion(
