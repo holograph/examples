@@ -12,8 +12,10 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 import static com.tomergabel.examples.eventsourcing.model.SampleSite.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.glassfish.jersey.client.ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class SiteResourceSpec {
@@ -37,17 +39,42 @@ public abstract class SiteResourceSpec {
         return resource(siteId).get();
     }
     private long createSite(UUID siteId, UUID owner) {
-        return resource(siteId).post(Entity.json(new CreateSiteRequest(owner)), VersionResponse.class).getVersion();
+        return resource(siteId)
+                .post(Entity.json(new CreateSiteRequest(owner)), VersionResponse.class)
+                .getVersion();
     }
     private Response createSiteRaw(UUID siteId, UUID owner) {
-        return resource(siteId).post(Entity.json(new CreateSiteRequest(owner)));
+        return resource(siteId)
+                .post(Entity.json(new CreateSiteRequest(owner)));
+    }
+    private long deleteSite(UUID siteId, UUID user) {
+        return resource(siteId)
+                .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
+                .method("DELETE", Entity.json(new DeleteSiteRequest(user)), VersionResponse.class)
+                .getVersion();
+    }
+    private Response deleteSiteRaw(UUID siteId, UUID user) {
+        return resource(siteId)
+                .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
+                .method("DELETE", Entity.json(new DeleteSiteRequest(user)));
+    }
+    private long restoreSite(UUID siteId, UUID user, long targetVersion) {
+        return resource(siteId)
+                .put(Entity.json(new RestoreSiteRequest(user, targetVersion)), VersionResponse.class)
+                .getVersion();
+    }
+    private Response restoreSiteRaw(UUID siteId, UUID user, long targetVersion) {
+        return resource(siteId)
+                .put(Entity.json(new RestoreSiteRequest(user, targetVersion)));
     }
     private long updateSite(UUID siteId, long atVersion, UUID user, JsonNode delta) {
         return resource(siteId, atVersion)
-                .method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)), VersionResponse.class).getVersion();
+                .method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)), VersionResponse.class)
+                .getVersion();
     }
     private Response updateSiteRaw(UUID siteId, long atVersion, UUID user, JsonNode delta) {
-        return resource(siteId, atVersion).method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)));
+        return resource(siteId, atVersion)
+                .method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)));
     }
 
     @Test
@@ -119,5 +146,72 @@ public abstract class SiteResourceSpec {
         Response response = createSiteRaw(siteId, owner);              // Note conflicting creation
 
         assertEquals(CONFLICT.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void deleteSiteReturns404ForNonexistentSite() {
+        Response response = deleteSiteRaw(UUID.randomUUID(), UUID.randomUUID());
+
+        assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void restoreSiteReturns404ForNonexistentSite() {
+        Response response = restoreSiteRaw(UUID.randomUUID(), UUID.randomUUID(), 0L);
+
+        assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void restoreSiteReturns400ForNonexistentTargetVersion() {
+        UUID siteId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        createSite(siteId, owner);
+
+        Response response = restoreSiteRaw(siteId, owner, 14L);
+
+        assertEquals(BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void restoreSiteReturnsNewVersionRepresentingCorrectState() {
+        UUID siteId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        long v0 = createSite(siteId, owner);
+        long v1 = updateSite(siteId, v0, owner, delta1);
+        @SuppressWarnings("unused") long v2 = updateSite(siteId, v1, owner, delta2);
+
+        long restored = restoreSite(siteId, owner, v1);
+        SiteSnapshot result = getSite(siteId);
+
+        assertEquals(restored, result.getVersion());
+        assertEquals(blob1, result.getBlob());
+    }
+
+    @Test
+    public void getSnapshotReturns404OnDeletedSite() {
+        UUID siteId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        createSite(siteId, owner);
+        deleteSite(siteId, owner);
+
+        Response response = getSiteRaw(siteId);
+
+        assertEquals(NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void getSnapshotReturnsCorrectStateAfterRestoringDeletedSite() {
+        UUID siteId = UUID.randomUUID();
+        UUID owner = UUID.randomUUID();
+        long v0 = createSite(siteId, owner);
+        long v1 = updateSite(siteId, v0, owner, delta1);
+        @SuppressWarnings("unused") long v2 = deleteSite(siteId, owner);
+
+        long restored = restoreSite(siteId, owner, v1);
+        SiteSnapshot result = getSite(siteId);
+
+        assertEquals(restored, result.getVersion());
+        assertEquals(blob1, result.getBlob());
     }
 }
