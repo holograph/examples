@@ -4,10 +4,15 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.tomergabel.examples.event-sourcing</groupId>
     <artifactId>core</artifactId>
     <packaging>jar</packaging>
     <version>1.0</version>
+
+    <parent>
+        <groupId>com.tomergabel.examples.event-sourcing</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0</version>
+    </parent>
 
     <dependencies>
         <dependency>
@@ -36,7 +41,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-
                 <executions>
                     <execution>
                         <goals>
@@ -44,30 +48,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>1.0.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.0.1</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
