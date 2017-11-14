@@ -83,8 +83,8 @@ public class SiteResource {
     }
 
     @PATCH
-    @Path("/versions/{version}")
     @Consumes("application/json-patch+json")
+    @Path("/versions/{version}")
     public Response updateVersion(
             @PathParam("id") UUID siteId,
             @PathParam("version") long version,
