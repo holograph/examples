@@ -14,10 +14,14 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.flywaydb.core.Flyway;
 import org.skife.jdbi.v2.DBI;
 
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import java.time.Clock;
+import java.util.EnumSet;
 
 public class SiteServiceApplication extends Application<SiteServiceConfiguration> {
 
@@ -33,6 +37,10 @@ public class SiteServiceApplication extends Application<SiteServiceConfiguration
 
     @Override
     public void run(SiteServiceConfiguration configuration, Environment environment) {
+
+        FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+        filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+        filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,PATCH");
 
         DBI eventDB = new DBIFactory().build(environment, configuration.getEventsDatabaseFactory(), "events");
         MysqlEventStore.configureDatabase(eventDB);
