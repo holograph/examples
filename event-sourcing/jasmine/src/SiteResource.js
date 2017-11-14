@@ -2,31 +2,42 @@ function SiteResource() {
 
     var base = "http://localhost:8080/sites/";
 
-    function call(resource, method, body, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open(method, base + resource);
-        if (body) xhr.setRequestHeader("Content-type", "application/json");
-        xhr.addEventListener("load", function() { callback(this.status, this.responseText); });
-        xhr.addEventListener("error", function() { callback("network error"); });
-        xhr.send(body);
-        return xhr;
-    }
+    // Low-level HTTP wrappers --
 
-    this.get = function(resource, callback) {
-        call(resource, "GET", null, callback);
-    }
-    this.post = function(resource, body, callback) {
-        call(resource, "POST", JSON.stringify(body), callback);
-    }
-    this.put = function(resource, body, callback) {
-        call(resource, "PUT", JSON.stringify(body), callback);
-    }
-    this.delete = function(resource, callback) {
-        call(resource, "DELETE", null, callback);
-    }
-    this.patch = function(resource, body, callback) {
-        call(resource, "PATCH", JSON.stringify(body, callback));
-    }
+    this.get = function(resource) {
+        return fetch(base + resource, { "method": "GET" });
+    };
+
+    this.post = function(resource, body) {
+        return fetch(base + resource, {
+            "method": "POST",
+            "body": JSON.stringify(body),
+            "headers": new Headers({ "Content-type": "application/json" })
+        });
+    };
+    this.put = function(resource, body) {
+        return fetch(base + resource, {
+            "method": "PUT",
+            "body": JSON.stringify(body),
+            "headers": new Headers({ "Content-type": "application/json" })
+        });
+    };
+    this.delete = function(resource, body) {
+        return fetch(base + resource, {
+            "method": "DELETE",
+            "body": JSON.stringify(body),
+            "headers": new Headers({ "Content-type": "application/json" })
+        });
+    };
+    this.patch = function(resource, body) {
+        return fetch(base + resource, {
+            "method": "PATCH",
+            "body": JSON.stringify(body),
+            "headers": new Headers({ "Content-type": "application/json-patch+json" })
+        });
+    };
+
+    // Helpers --
 
     this.random = function() {
         // Source: https://stackoverflow.com/a/2117523/11558
@@ -34,5 +45,34 @@ function SiteResource() {
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    };
+
+    // High-level driver --
+
+    function retrieveVersion(response) {
+        expect(response.ok).toBe(true);
+        return response.json().version;
     }
+
+    this.createSite = function(id, owner) {
+        return this.post(id, { "owner": owner })
+            .then(function(response) {
+                expect(response.status).toBe(201);
+                return response;
+            })
+            .then(retrieveVersion);
+    };
+
+    this.updateSite = function(id, user, baseVersion, patch) {
+        return this.patch(id + "/versions/" + baseVersion, {
+            "user": user,
+            "delta": patch
+        }).then(retrieveVersion);
+    };
+
+    this.deleteSite = function(id, user) {
+        return this.delete(id, {
+            "user": user
+        }).then(retrieveVersion);
+    };
 }

@@ -2,14 +2,23 @@ describe("Site API", function() {
 
     var resource = new SiteResource();
 
-    it("returns 404 on GET issued against a nonexistent site", function(done) {
-        resource.get(resource.random(), function(status) {
-            expect(status).toBe(404);
-            done();
-        });
+    it("returns 404 on GET issued against a nonexistent site", function() {
+        return resource
+            .get(resource.random())
+            .then(function(response) {
+                expect(response.status).toBe(404);
+            });
     });
-    it("returns 404 on GET issued against a deleted site", function(done) {
-        pending();
+    it("returns 404 on GET issued against a deleted site", function() {
+        var id = resource.random();
+        var owner = resource.random();
+
+        return resource.createSite(id, owner)
+            .then(function(ignored) { return resource.deleteSite(id, owner); })
+            .then(function(ignored) { return resource.get(id); })
+            .then(function(response) {
+                expect(response.status).toBe(404);
+            });
     });
     it("returns 404 on PATCH issued against a nonexistent site", function(done) {
         pending();

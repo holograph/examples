@@ -10,7 +10,7 @@ public class CreateSiteRequest {
     private UUID owner;
 
     @JsonCreator
-    public CreateSiteRequest(@JsonProperty("owner") UUID owner) {
+    public CreateSiteRequest(@JsonProperty(value = "owner", required = true) UUID owner) {
         this.owner = owner;
     }
 

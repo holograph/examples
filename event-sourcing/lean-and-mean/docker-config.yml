@@ -3,11 +3,11 @@ events:
   user: example
   password: example
   url: jdbc:mysql://events-db:3306/events?useSSL=false
-  validationQueryTimeout: 10s
+  validationQueryTimeout: 30s
 
 snapshots:
   driverClass: com.mysql.jdbc.Driver
   user: example
   password: example
   url: jdbc:mysql://snapshots-db:3306/snapshots?useSSL=false
-  validationQueryTimeout: 10s
+  validationQueryTimeout: 30s
