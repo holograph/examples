@@ -67,7 +67,7 @@ function SiteResource() {
     }
 
     this.getSiteRaw = function(id, version) {
-        return _get(id + (version ? "/versions/" + version : ""));
+        return _get(id + (version !== undefined ? "/versions/" + version : ""));
     };
 
     this.getSite = function(id, version) {
