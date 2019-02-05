@@ -45,10 +45,4 @@ class NotesController < ActionController::API
       render json: { error: 'Expected JSON or JSON Patch payload' }, status: 406
     end
   end
-
-  private
-
-  def has_mutations?(patch)
-    patch.any? { |ins| ins['op'] != 'test' }
-  end
 end
