@@ -38,7 +38,7 @@ class NotesController < ActionController::API
       patch = Hana::Patch.new(JSON.parse(request.raw_post))
       base = JSON.parse(note.content)
       result = JSON.generate(patch.apply(base))
-      note.update!(content: result) if result != base
+      note.update!(content: result) if result != note.content
       render json: note
 
     else
