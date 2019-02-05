@@ -37,12 +37,18 @@ class NotesController < ActionController::API
       note = Note.find(params.require(:id))
       patch = Hana::Patch.new(JSON.parse(request.raw_post))
       base = JSON.parse(note.content)
-      result = patch.apply(base)
-      note.update!(content: JSON.generate(result)) if base != result
+      result = JSON.generate(patch.apply(base))
+      note.update!(content: result) if result != base
       render json: note
 
     else
       render json: { error: 'Expected JSON or JSON Patch payload' }, status: 406
     end
+  end
+
+  private
+
+  def has_mutations?(patch)
+    patch.any? { |ins| ins['op'] != 'test' }
   end
 end
