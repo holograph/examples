@@ -11,16 +11,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemorySnapshotStoreTest extends SnapshotStoreSpec {
+    private InMemorySnapshotStore store = new InMemorySnapshotStore();
+
     @Override
     protected InMemorySnapshotStore getStore() {
-        return new InMemorySnapshotStore();
-    }
-
-    private InMemorySnapshotStore store;
-
-    @BeforeEach
-    void setupStore() {
-        store = getStore();
+        return store;
     }
 
     @Test
