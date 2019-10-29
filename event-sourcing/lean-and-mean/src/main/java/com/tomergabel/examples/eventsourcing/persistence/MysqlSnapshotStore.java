@@ -12,6 +12,7 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,6 +86,17 @@ public class MysqlSnapshotStore implements SnapshotStore {
                 else
                     throw e;
             }
+        });
+    }
+
+    @Override
+    public List<Long> findAvailableSnapshots(UUID siteId) {
+        return database.withHandle(handle -> {
+            String sql =  "select version from snapshots where site_id=:id order by version desc";
+            return handle
+                    .createQuery(sql).bind("id", siteId)
+                    .mapTo(Long.class)
+                    .list();
         });
     }
 }

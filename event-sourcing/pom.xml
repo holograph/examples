@@ -12,6 +12,8 @@
     <modules>
         <module>core</module>
         <module>testkit</module>
+        <module>lean-and-mean</module>
+        <module>guice</module>
         <module>site-restore</module>
     </modules>
 
