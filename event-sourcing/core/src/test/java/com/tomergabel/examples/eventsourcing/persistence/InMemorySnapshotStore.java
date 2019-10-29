@@ -3,6 +3,7 @@ package com.tomergabel.examples.eventsourcing.persistence;
 import com.tomergabel.examples.eventsourcing.model.SiteSnapshot;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InMemorySnapshotStore implements SnapshotStore {
@@ -36,6 +37,13 @@ public class InMemorySnapshotStore implements SnapshotStore {
         return true;
     }
 
+    public synchronized Optional<SiteSnapshot> getPersistedSnapshot(UUID siteId, long atVersion) {
+        if (!snapshotMap.containsKey(siteId))
+            return Optional.empty();
+
+        return snapshotMap.get(siteId).stream().filter(snapshot -> snapshot.getVersion() == atVersion).findAny();
+    }
+
     public UUID getLastQueriedSite() {
         return lastQueriedSite;
     }
@@ -48,5 +56,13 @@ public class InMemorySnapshotStore implements SnapshotStore {
         snapshotMap.clear();
         lastQueriedSite = null;
         lastQueriedVersion = null;
+    }
+
+    @Override
+    public List<Long> findAvailableSnapshots(UUID siteId) {
+        if (!snapshotMap.containsKey(siteId))
+            return Collections.emptyList();
+
+        return snapshotMap.get(siteId).stream().map(SiteSnapshot::getVersion).collect(Collectors.toList());
     }
 }
