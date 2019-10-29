@@ -1,23 +1,14 @@
 package com.tomergabel.examples.eventsourcing.resources;
 
-import com.tomergabel.examples.eventsourcing.persistence.InMemoryEventStore;
-import com.tomergabel.examples.eventsourcing.persistence.InMemorySnapshotStore;
-import com.tomergabel.examples.eventsourcing.service.MockSnapshotStrategy;
 import com.tomergabel.examples.eventsourcing.service.SiteService;
-import com.tomergabel.examples.eventsourcing.service.SnapshotEnabledSiteService;
+import com.tomergabel.examples.eventsourcing.testkit.TestableSiteService;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.ClassRule;
 
 import javax.ws.rs.client.WebTarget;
-import java.time.Clock;
 
 public class SiteResourceTest extends SiteResourceSpec {
-    private static SiteService siteService =
-            new SnapshotEnabledSiteService(
-                    new InMemoryEventStore(),
-                    new InMemorySnapshotStore(),
-                    new MockSnapshotStrategy(),
-                    Clock.systemUTC());
+    private static SiteService siteService = new TestableSiteService();
 
     @ClassRule
     public static final ResourceTestRule resources =

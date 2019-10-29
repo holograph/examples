@@ -18,7 +18,7 @@ import static com.wix.mysql.config.MysqldConfig.aMysqldConfig;
 import static com.wix.mysql.distribution.Version.v5_7_latest;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
-public class SiteServiceAcceptanceTest extends SiteResourceSpec {
+class SiteServiceAcceptanceTest extends SiteResourceSpec {
 
     static EmbeddedMysql embeddedMysql;
 

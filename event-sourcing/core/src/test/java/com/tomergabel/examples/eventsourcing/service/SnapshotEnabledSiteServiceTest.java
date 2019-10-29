@@ -12,15 +12,11 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
-public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
+class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
 
     private InMemoryEventStore eventStore = new InMemoryEventStore();
     private InMemorySnapshotStore snapshotStore = new InMemorySnapshotStore();
@@ -41,7 +37,7 @@ public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
     void getSnapshotQueriesStrategyIfEventTailExists() throws IOException {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
-        service.create(siteId, owner).getAsLong();
+        assertTrue(service.create(siteId, owner).isPresent());
 
         service.getSnapshot(siteId, null);
 
@@ -55,7 +51,7 @@ public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
     void getSnapshotPersistsNewSnapshotIfStrategyApproves() throws IOException {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
-        service.create(siteId, owner).getAsLong();
+        assertTrue(service.create(siteId, owner).isPresent());
 
         snapshotStrategy.response = true;
         Optional<SiteSnapshot> result = service.getSnapshot(siteId, null);
@@ -68,8 +64,10 @@ public class SnapshotEnabledSiteServiceTest extends SiteServiceSpec {
     void getSnapshotUtilizesLatestSnapshotIfAvailable() throws IOException {
         UUID siteId = UUID.randomUUID();
         UUID owner = UUID.randomUUID();
-        long atCreation = service.create(siteId, owner).getAsLong();
-        SiteSnapshot expected = new SiteSnapshot(siteId, atCreation, owner, mapper.createObjectNode(), false);
+        OptionalLong atCreation = service.create(siteId, owner);
+        assertTrue(atCreation.isPresent());
+        SiteSnapshot expected =
+                new SiteSnapshot(siteId, atCreation.getAsLong(), owner, mapper.createObjectNode(), false);
         snapshotStore.persistSnapshot(expected);
 
         // Snapshots are persisted on reads; no call to getSnapshot => only the snapshot explicitly persisted

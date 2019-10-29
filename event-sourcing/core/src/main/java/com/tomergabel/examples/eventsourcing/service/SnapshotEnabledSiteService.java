@@ -13,10 +13,10 @@ import java.util.*;
 
 public class SnapshotEnabledSiteService implements SiteService {
 
-    private Clock clock;
-    private EventStore eventStore;
-    private SnapshotStore snapshotStore;
-    private SnapshotStrategy snapshotStrategy;
+    protected Clock clock;
+    protected EventStore eventStore;
+    protected SnapshotStore snapshotStore;
+    protected SnapshotStrategy snapshotStrategy;
 
     @Inject
     public SnapshotEnabledSiteService(EventStore eventStore,

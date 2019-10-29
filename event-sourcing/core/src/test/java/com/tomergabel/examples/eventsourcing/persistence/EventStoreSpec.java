@@ -15,7 +15,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class EventStoreSpec {
+public abstract class EventStoreSpec {
 
     protected abstract EventStore getStore();
 

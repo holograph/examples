@@ -3,7 +3,7 @@ package com.tomergabel.examples.eventsourcing.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tomergabel.examples.eventsourcing.model.SiteSnapshot;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class SiteResourceSpec {
+    public final String JSON_PATCH_MIME_TYPE = "application/json-patch+json";
 
     protected abstract WebTarget sites();
 
@@ -69,12 +70,12 @@ public abstract class SiteResourceSpec {
     }
     private long updateSite(UUID siteId, long atVersion, UUID user, JsonNode delta) {
         return resource(siteId, atVersion)
-                .method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)), VersionResponse.class)
+                .method("PATCH", Entity.entity(new UpdateSiteRequest(user, delta), JSON_PATCH_MIME_TYPE), VersionResponse.class)
                 .getVersion();
     }
     private Response updateSiteRaw(UUID siteId, long atVersion, UUID user, JsonNode delta) {
         return resource(siteId, atVersion)
-                .method("PATCH", Entity.json(new UpdateSiteRequest(user, delta)));
+                .method("PATCH", Entity.entity(new UpdateSiteRequest(user, delta), JSON_PATCH_MIME_TYPE));
     }
 
     @Test
