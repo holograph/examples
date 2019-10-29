@@ -5,11 +5,12 @@ import com.tomergabel.examples.eventsourcing.server.SiteServiceApplication;
 import com.tomergabel.examples.eventsourcing.server.SiteServiceConfiguration;
 import com.wix.mysql.EmbeddedMysql;
 import com.wix.mysql.config.MysqldConfig;
-import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.dropwizard.testing.junit5.DropwizardAppExtension;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.client.WebTarget;
 
@@ -18,15 +19,15 @@ import static com.wix.mysql.config.MysqldConfig.aMysqldConfig;
 import static com.wix.mysql.distribution.Version.v5_7_latest;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 class SiteServiceAcceptanceTest extends SiteResourceSpec {
 
     static EmbeddedMysql embeddedMysql;
 
-    @Rule
-    public DropwizardAppRule<SiteServiceConfiguration> applicationRule =
-            new DropwizardAppRule<>(SiteServiceApplication.class, resourceFilePath("test-config.yaml"));
+    public DropwizardAppExtension<SiteServiceConfiguration> applicationRule =
+            new DropwizardAppExtension<>(SiteServiceApplication.class, resourceFilePath("test-config.yaml"));
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MysqldConfig config = aMysqldConfig(v5_7_latest)
                 .withUser("test", "test")
@@ -38,7 +39,7 @@ class SiteServiceAcceptanceTest extends SiteResourceSpec {
                 .start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         embeddedMysql.stop();
     }
