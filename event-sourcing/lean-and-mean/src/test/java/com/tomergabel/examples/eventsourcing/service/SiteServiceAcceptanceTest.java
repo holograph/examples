@@ -47,11 +47,9 @@ class SiteServiceAcceptanceTest extends SiteResourceSpec {
 
     @Override
     protected WebTarget siteResource() {
-//        .property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
         // TODO gotta be a cleaner way to do this, but client() returns relative URI?! --TG
         return applicationRule
                 .client()
-                .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)     // OMG I hate this
                 .property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
                 .target("http://localhost:" + applicationRule.getLocalPort() + "/sites");
     }
