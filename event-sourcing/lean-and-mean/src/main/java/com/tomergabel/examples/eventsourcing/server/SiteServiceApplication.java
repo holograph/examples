@@ -21,6 +21,7 @@ import org.skife.jdbi.v2.DBI;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.EnumSet;
 
 public class SiteServiceApplication extends Application<SiteServiceConfiguration> {
@@ -63,6 +64,7 @@ public class SiteServiceApplication extends Application<SiteServiceConfiguration
     private void migrateDatabase(DataSourceFactory factory, String schema) {
         Flyway flyway = new Flyway();
         flyway.setDataSource(factory.getUrl(), factory.getUser(), factory.getPassword());
+        flyway.configure(Collections.singletonMap("flyway.connectRetries", "10"));
         flyway.setLocations("classpath:db/migration/" + schema);
         flyway.migrate();
     }

@@ -1,28 +1,35 @@
-site-service:
-  image: examples/event-sourcing:lean-and-mean
-  ports:
-    - "8080:8080"
-  links:
-    - events-db
-    - snapshots-db
+version: "3.0"
 
-events-db:
-  image: mysql:5.7
-  ports:
-    - "3306"
-  environment:
-    MYSQL_USER: "example"
-    MYSQL_PASSWORD: "example"
-    MYSQL_DATABASE: "events"
-    MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+services:
+  site-service:
+    image: examples/event-sourcing:lean-and-mean
+    ports:
+      - "8080:8080"
+    links:
+      - events-db
+      - snapshots-db
 
-snapshots-db:
-  image: mysql:5.7
-  ports:
-    - "3306"
-  environment:
-    MYSQL_USER: "example"
-    MYSQL_PASSWORD: "example"
-    MYSQL_DATABASE: "snapshots"
-    MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+  events-db:
+    image: mysql:5.7
+    ports:
+      - "3306"
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      MYSQL_USER: "example"
+      MYSQL_PASSWORD: "example"
+      MYSQL_DATABASE: "events"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+
+  snapshots-db:
+    image: mysql:5.7
+    ports:
+      - "3306"
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      MYSQL_USER: "example"
+      MYSQL_PASSWORD: "example"
+      MYSQL_DATABASE: "snapshots"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
 
