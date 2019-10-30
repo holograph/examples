@@ -7,6 +7,7 @@ import com.wix.mysql.EmbeddedMysql;
 import com.wix.mysql.config.MysqldConfig;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,11 +46,13 @@ class SiteServiceAcceptanceTest extends SiteResourceSpec {
     }
 
     @Override
-    protected WebTarget sites() {
+    protected WebTarget siteResource() {
+//        .property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
         // TODO gotta be a cleaner way to do this, but client() returns relative URI?! --TG
         return applicationRule
                 .client()
                 .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)     // OMG I hate this
+                .property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
                 .target("http://localhost:" + applicationRule.getLocalPort() + "/sites");
     }
 }
