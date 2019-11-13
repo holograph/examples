@@ -5,6 +5,7 @@ This repository serves as sample code for my talk [An Abridged Guide to Event So
 The `event-sourcing` project contains the following modules:
 
 * [core](core) defines the event model, the materializer (which transforms events to the full domain model), the interfaces for the event/snapshot stores, and the actual service orchestrating all of the moving pieces;
+* [testkit](testkit) provides a set of tools (drivers, data factories etc.) to simplify writing tests for the service;
 * [lean-and-mean](lean-and-mean) provides a full-blown implementation of the service on top of Dropwizard, including MySQL-based storage and a full REST API;
 * [guice](guice) showcases how the same components can be wired using an IoC/DI container; and
 * [jasmine](jasmine) contains a browser-runnable test suite that verifies the REST API behaves as intended.
